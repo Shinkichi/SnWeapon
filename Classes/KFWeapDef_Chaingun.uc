@@ -26,7 +26,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_Chaingun"
 
-	BuyPrice=1100
+	BuyPrice=1200//1100
 	AmmoPricePerMag=45
 	ImagePath="wep_ui_cryogun_tex.UI_WeaponSelect_Cryogun"
 

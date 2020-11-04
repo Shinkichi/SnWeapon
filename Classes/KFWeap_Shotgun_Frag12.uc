@@ -46,10 +46,11 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Frag12_Fireball'
-	InstantHitDamage(DEFAULT_FIREMODE)=30.0//125
+	InstantHitDamage(DEFAULT_FIREMODE)=15.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Explosive_Frag12Impact'
 	Spread(DEFAULT_FIREMODE) = 0.0085
-	FireOffset=(X=25,Y=3.5,Z=-4)
+	FireOffset=(X=30,Y=5,Z=-4)
+	//FireOffset=(X=25,Y=3.5,Z=-4)
 	FireInterval(DEFAULT_FIREMODE)=0.2 // 300 RPM
 	// Shotgun
 	NumPellets(DEFAULT_FIREMODE)=1
@@ -59,7 +60,7 @@ defaultproperties
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Frag12_Fireball'
-	InstantHitDamage(ALTFIRE_FIREMODE)=30.0
+	InstantHitDamage(ALTFIRE_FIREMODE)=15.0
 	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Explosive_Frag12Impact'
 	Spread(ALTFIRE_FIREMODE)=0.0085
 	FireInterval(ALTFIRE_FIREMODE)=0.2 // 300 RPM
@@ -115,5 +116,5 @@ defaultproperties
 	// Weapon Upgrade stat boosts
 	//WeaponUpgrades[1]=(IncrementDamage=1.15f,IncrementWeight=1)
 
-	WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.15f), (Stat=EWUS_Damage1, Scale=1.15f), (Stat=EWUS_Weight, Add=1)))
+	//WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.15f), (Stat=EWUS_Damage1, Scale=1.15f), (Stat=EWUS_Weight, Add=1)))
 }

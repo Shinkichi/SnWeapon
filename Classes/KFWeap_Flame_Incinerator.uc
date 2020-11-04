@@ -229,7 +229,7 @@ defaultproperties
 	FirstPersonMeshName="WEP_1P_Flamethrower_MESH.Wep_1stP_Flamethrower_Rig"
 	FirstPersonAnimSetNames(0)="wep_1p_flamethrower_anim.Wep_1stP_Flamethrower_anim"
 	PickupMeshName="WEP_3P_Flamethrower_MESH.Wep_FlameThrower_Pickup"
-	AttachmentArchetypeName="WEP_Flamethrower_ARCH.Wep_Flamethrower_3P"
+	AttachmentArchetypeName="SnWeapon_Packages.Wep_Incinerator_3P"
 	MuzzleFlashTemplateName="WEP_Flamethrower_ARCH.Wep_Flamethrower_MuzzleFlash"
 
    	// Zooming/Position
@@ -245,19 +245,20 @@ defaultproperties
 	bReloadFromMagazine=true
 
 	// Recoil
-	maxRecoilPitch=150
-	minRecoilPitch=115
-	maxRecoilYaw=115
-	minRecoilYaw=-115
-	RecoilRate=0.085
+	maxRecoilPitch=400
+	minRecoilPitch=350
+	maxRecoilYaw=125
+	minRecoilYaw=-125
+	RecoilRate=0.08
 	RecoilMaxYawLimit=500
 	RecoilMinYawLimit=65035
 	RecoilMaxPitchLimit=900
 	RecoilMinPitchLimit=65035
-	RecoilISMaxYawLimit=75
-	RecoilISMinYawLimit=65460
-	RecoilISMaxPitchLimit=375
-	RecoilISMinPitchLimit=65460
+	RecoilISMaxYawLimit=50
+	RecoilISMinYawLimit=65485
+	RecoilISMaxPitchLimit=400
+	RecoilISMinPitchLimit=65485
+	RecoilBlendOutRatio=0.75
 	RecoilViewRotationScale=0.25
 	IronSightMeshFOVCompensationScale=1.5
     HippedRecoilModifier=1.5
@@ -272,12 +273,12 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponBurstFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Incinerator'
-	FireInterval(DEFAULT_FIREMODE)=+.075 // 1200 RPM
-	InstantHitDamage(DEFAULT_FIREMODE)=30.0//40.0
+	FireInterval(DEFAULT_FIREMODE)=+.075
+	InstantHitDamage(DEFAULT_FIREMODE)=20.0//30.0////40.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Fire_Incinerator'
 	Spread(DEFAULT_FIREMODE)=0.015
 	FireOffset=(X=30,Y=4.5,Z=-5)
-	BurstAmount=5
+	BurstAmount=4
 
 	// ALT_FIREMODE
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponFiring

@@ -25,7 +25,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_Rifle_M1895"
 
-	BuyPrice=650
+	BuyPrice=750//650
 	AmmoPricePerMag=42//55 //50
 	ImagePath="WEP_UI_Centerfire_TEX.UI_WeaponSelect_Centerfire"
 

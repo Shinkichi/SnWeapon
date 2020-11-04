@@ -205,7 +205,7 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_ExpressRifle'
-	InstantHitDamage(DEFAULT_FIREMODE)=300//240
+	InstantHitDamage(DEFAULT_FIREMODE)=240
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_ExpressRifle'
 	PenetrationPower(DEFAULT_FIREMODE)=8//12//4.0
 	FireInterval(DEFAULT_FIREMODE)=0.25 // 240 RPM

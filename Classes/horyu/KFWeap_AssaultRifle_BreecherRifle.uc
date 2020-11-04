@@ -1,5 +1,5 @@
 
-class KFWeap_AssaultRifle_TacticalRifle extends KFWeap_RifleBase;
+class KFWeap_AssaultRifle_BreecherRifle extends KFWeap_RifleBase;
 
 var(Positioning) vector SecondaryFireOffset;
 
@@ -14,9 +14,19 @@ var int ServerTotalAltAmmo;
 
 var transient bool bCanceledAltAutoReload;
 
-static simulated event EFilterTypeUI GetAltTraderFilter()
+/** How much to scale recoil when firing in double barrel fire. */
+var(Recoil) float DoubleFireRecoilModifier;
+
+/** How much momentum to apply when fired in double barrel */
+var(Recoil) float DoubleBarrelKickMomentum;
+
+/** How much to reduce shoot momentum when falling */
+var(Recoil) float FallingMomentumReduction;
+
+/** Returns trader filter index based on weapon type */
+static simulated event EFilterTypeUI GetTraderFilter()
 {
-	return FT_Explosive;
+	return FT_Shotgun;
 }
 
 /** Instead of switch fire mode use as immediate alt fire */
@@ -209,13 +219,13 @@ reliable client function ClientGiveSecondaryAmmo(byte Amount)
 
 function SetOriginalValuesFromPickup( KFWeapon PickedUpWeapon )
 {
-	local KFWeap_AssaultRifle_M16M203 Weap;
+	local KFWeap_AssaultRifle_BreecherRifle Weap;
 
 	Super.SetOriginalValuesFromPickup(PickedUpWeapon);
 
 	if(Role == ROLE_Authority && !Instigator.IsLocallyControlled())
 	{
-		Weap = KFWeap_AssaultRifle_M16M203(PickedUpWeapon);
+		Weap = KFWeap_AssaultRifle_BreecherRifle(PickedUpWeapon);
 		ServerTotalAltAmmo = Weap.ServerTotalAltAmmo;
 		SpareAmmoCount[1] = ServerTotalAltAmmo - AmmoCount[1];
 		//`Warn("SPARE AMMO 0"$SpareAmmoCount[0]$"\n SPARE AMMO 1" $SpareAmmoCount[1]$"\n AmmoCount 0" $AmmoCount[0]$"\n AmmoCount 1" $AmmoCount[1]$"\n ServerTotalAltAmmo" $ServerTotalAltAmmo$"\	n");
@@ -247,11 +257,36 @@ reliable client function ClientForceSecondarySpareAmmo(byte NewSecondarySpareAmm
 
 simulated state FiringSecondaryState extends WeaponSingleFiring
 {
-	// Overriden to not call FireAmmunition right at the start of the state
-	simulated event BeginState( Name PreviousStateName )
+    /** Overrideen to include the DoubleFireRecoilModifier*/
+    simulated function ModifyRecoil( out float CurrentRecoilModifier )
 	{
-		Super.BeginState(PreviousStateName);
-		NotifyBeginState();
+		super.ModifyRecoil( CurrentRecoilModifier );
+	    CurrentRecoilModifier *= DoubleFireRecoilModifier;
+	}
+
+	simulated function BeginState(name PreviousStateName)
+    {
+   	    local vector UsedKickMomentum;
+       	Super.BeginState(PreviousStateName);
+
+    	// Push the player back when they fire both barrels
+        if (Instigator != none )
+    	{
+            UsedKickMomentum.X = -DoubleBarrelKickMomentum;
+
+            if( Instigator.Physics == PHYS_Falling  )
+            {
+                UsedKickMomentum = UsedKickMomentum >> Instigator.GetViewRotation();
+                UsedKickMomentum *= FallingMomentumReduction;
+            }
+            else
+            {
+                UsedKickMomentum = UsedKickMomentum >> Instigator.Rotation;
+                UsedKickMomentum.Z = 0;
+    		}
+
+            Instigator.AddVelocity(UsedKickMomentum,Instigator.Location,none);
+    	}
 	}
 
 	simulated function EndState(Name NextStateName)
@@ -503,6 +538,29 @@ simulated function TryToAltReload()
 	}
 }
 
+/*********************************************************************************************
+ Firing / Projectile - Below projectile spawning code copied from KFWeap_ShotgunBase
+********************************************************************************************* */
+
+/** Spawn projectile is called once for each shot pellet fired */
+simulated function KFProjectile SpawnAllProjectiles(class<KFProjectile> KFProjClass, vector RealStartLoc, vector AimDir)
+{
+	local KFPerk InstigatorPerk;
+
+	if (CurrentFireMode == GRENADE_FIREMODE)
+	{
+		return Super.SpawnProjectile(KFProjClass, RealStartLoc, AimDir);
+	}
+
+	InstigatorPerk = GetPerk();
+	if (InstigatorPerk != none)
+	{
+		Spread[CurrentFireMode] = default.Spread[CurrentFireMode] * InstigatorPerk.GetTightChokeModifier();
+	}
+
+	return super.SpawnAllProjectiles(KFProjClass, RealStartLoc, AimDir);
+}
+
 defaultproperties
 {
 	bCanRefillSecondaryAmmo = true;
@@ -522,7 +580,7 @@ defaultproperties
 	DOF_FG_MaxNearBlurSize=3.5
 
 	// Content
-	PackageKey="TacticalRifle"
+	PackageKey="BreecherRifle"
 	FirstPersonMeshName="wep_1p_m16_m203_mesh.Wep_1stP_M16_M203_Rig"
 	FirstPersonAnimSetNames(0)="wep_1p_m16_m203_anim.Wep_1stP_M16_M203_Anim"
 	PickupMeshName="WEP_3P_M16_M203_MESH.Wep_M4_M203_Pickup"
@@ -573,39 +631,45 @@ defaultproperties
 	InventorySize=6
 	GroupPriority=50
 	WeaponSelectTexture=Texture2D'wep_ui_m16_m203_tex.UI_WeaponSelect_M16M203'
-   	AssociatedPerkClasses(0)=class'KFPerk_SWAT'
+   	AssociatedPerkClasses(0)=class'KFPerk_Support'
    	AssociatedPerkClasses(1)=class'KFPerk_Commando'
 
 	// DEFAULT_FIREMODE
-	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletAuto'
-	FiringStatesArray(DEFAULT_FIREMODE)=WeaponFiring
+	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletBurst'
+	FiringStatesArray(DEFAULT_FIREMODE)=WeaponBurstFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_AssaultRifle'
-	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_TacticalRifle'
+	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_BreecherRifle'
 	FireInterval(DEFAULT_FIREMODE)=+0.0896 // 0.086 700 RPM
 	Spread(DEFAULT_FIREMODE)=0.0085
 	InstantHitDamage(DEFAULT_FIREMODE)=33.0 //24 //30
 	FireOffset=(X=30,Y=4.5,Z=-5)
 	SecondaryFireOffset=(X=20.f,Y=4.5,Z=-7.f)
+	BurstAmount=3
 
 	// ALT_FIREMODE
 	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletSingle'
 	FiringStatesArray(ALTFIRE_FIREMODE)=FiringSecondaryState
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
-	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_FlashBang_TacticalRifle'
-	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_TacticalRifleGrenadeImpact'
+	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_Pellet'
+	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_BreecherRifleSecondary'
 	FireInterval(ALTFIRE_FIREMODE)=+0.25f
-	InstantHitDamage(ALTFIRE_FIREMODE)=230.0 //150 //225
-	Spread(ALTFIRE_FIREMODE)=0.0085
+	PenetrationPower(ALTFIRE_FIREMODE)=2.0
+	InstantHitDamage(ALTFIRE_FIREMODE)=25
+	NumPellets(ALTFIRE_FIREMODE)=20
+	Spread(ALTFIRE_FIREMODE)=0.15f
+	DoubleBarrelKickMomentum=1000
+	FallingMomentumReduction=0.5
 
 	// BASH_FIREMODE
-	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_TacticalRifle'
+	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_BreecherRifle'
 	InstantHitDamage(BASH_FIREMODE)=26
 
 	// Fire Effects
 	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_M16M203.Play_M16_Fire_3P_Loop', FirstPersonCue=AkEvent'WW_WEP_M16M203.Play_M16_Fire_1P_Loop')
 	WeaponFireLoopEndSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_M16M203.Play_M16_Fire_3P_EndLoop', FirstPersonCue=AkEvent'WW_WEP_M16M203.Play_M16_Fire_1P_EndLoop')
-	WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_M79.Play_WEP_SA_M79_Fire_M', FirstPersonCue=AkEvent'WW_WEP_SA_M79.Play_WEP_SA_M79_Fire_S')
+	//WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_M79.Play_WEP_SA_M79_Fire_M', FirstPersonCue=AkEvent'WW_WEP_SA_M79.Play_WEP_SA_M79_Fire_S')
+    WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_Shotgun.Play_SA_WEP_DoubleBarrel_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_SA_Shotgun.Play_SA_WEP_DoubleBarrel_Alt_Fire_1P')
 
 	WeaponDryFireSnd(DEFAULT_FIREMODE)=AkEvent'WW_WEP_SA_L85A2.Play_WEP_SA_L85A2_Handling_DryFire'
 	WeaponDryFireSnd(ALTFIRE_FIREMODE)=AkEvent'WW_WEP_SA_L85A2.Play_WEP_SA_L85A2_Handling_DryFire'

@@ -86,8 +86,8 @@ defaultproperties
 {
 	Physics=PHYS_Falling
     bBounce=false
-    MaxSpeed=4000.0
-	Speed=4000.0
+	Speed=5000 //6000
+	MaxSpeed=5000  //6000
 	TerminalVelocity=7000.0
 	TossZ=150
 	//GravityScale=1

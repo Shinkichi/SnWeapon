@@ -4,22 +4,22 @@ class KFWeapDef_DoubleDragon extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Double Dragon Shotgun";
+    return "Double Dragon";
 }
 
 static function string GetItemCategory()
 {
-	return "Double Dragon Shotgun";
+	return "Double Dragon";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Double Dragon Shotgun!!";
+    return "This is Double Dragon!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Double Dragon Shotgun";
+	return "Double Dragon";
 }
 
 DefaultProperties

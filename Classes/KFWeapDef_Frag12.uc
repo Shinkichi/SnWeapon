@@ -26,13 +26,13 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_Shotgun_Frag12"
 
-	BuyPrice=1500
+	BuyPrice=2500//1500
 	AmmoPricePerMag=82 //110 //82
 	ImagePath="ui_weaponselect_tex.UI_WeaponSelect_AA12"
 
 	EffectiveRange=30
 
-	UpgradePrice[0]=1500
+	//UpgradePrice[0]=1500
 
-	UpgradeSellPrice[0]=1125
+	//UpgradeSellPrice[0]=1125
 }

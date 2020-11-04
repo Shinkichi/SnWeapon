@@ -1,6 +1,5 @@
-
-class KFProj_Frag12_Fireball_Old extends KFProj_BallisticExplosive
-    hidedropdown;
+class KFProj_Explosive_Grenadier extends KFProj_BallisticExplosive
+	hidedropdown;
 
 /** Cached reference to owner weapon */
 var protected KFWeapon OwnerWeapon;
@@ -86,29 +85,27 @@ simulated function bool AllowNuke()
 defaultproperties
 {
 	Physics=PHYS_Falling
-    bBounce=false
-	MaxSpeed=5000.0
-	Speed=5000.0
-	TerminalVelocity=7000.0
+	Speed=4000
+	MaxSpeed=4000
+	TerminalVelocity=4000
 	TossZ=150
-	GravityScale=1
+	GravityScale=0.5
     MomentumTransfer=50000.0
-    ArmDistSquared=0 //87500 //2.5 meters - //122500 // 3.5 meters
+    ArmDistSquared=0 // Arm instantly
+	LifeSpan=25.0f
 
 	bWarnAIWhenFired=true
 
-	ProjFlightTemplate=ParticleSystem'WEP_HRG_Kaboomstick_EMIT.FX_HRG_Kaboomstick_Projectile'
-	ProjFlightTemplateZedTime=ParticleSystem'WEP_HRG_Kaboomstick_EMIT.FX_HRG_Kaboomstick_Projectile_ZEDTIME'
+	ProjFlightTemplate=ParticleSystem'WEP_HX25_Pistol_EMIT.FX_HX25_Pistol_Projectile_small'
+	ProjFlightTemplateZedTime=ParticleSystem'WEP_HX25_Pistol_EMIT.FX_HX25_Pistol_Projectile_small_ZEDTIME'
+	AltExploEffects=KFImpactEffectInfo'WEP_HX25_Pistol_ARCH.HX25_Pistol_Submunition_Explosion_Concussive_Force'
 	ProjDisintegrateTemplate=ParticleSystem'ZED_Siren_EMIT.FX_Siren_grenade_disable_01'
-	AltExploEffects=KFImpactEffectInfo'WEP_HRG_Kaboomstick_ARCH.WEP_HRG_Kaboomstick_Explosion_Concussive_Force'
-	
-	AssociatedPerkClass(0)=class'KFPerk_Demolitionist'
 
 	// Grenade explosion light
 	Begin Object Class=PointLightComponent Name=ExplosionPointLight
 	    LightColor=(R=252,G=218,B=171,A=255)
-		Brightness=0.5f
-		Radius=400.f
+		Brightness=4.f
+		Radius=250.f
 		FalloffExponent=10.f
 		CastShadows=False
 		CastStaticShadows=FALSE
@@ -120,32 +117,30 @@ defaultproperties
 
 	// explosion
 	Begin Object Class=KFGameExplosion Name=ExploTemplate0
-		Damage=90 //100
-		DamageRadius=150 //450 //550
-		DamageFalloffExponent=1.f //1.0
+		Damage=30
+		DamageRadius=150
+		DamageFalloffExponent=1.0f
 		DamageDelay=0.f
 
-		MomentumTransferScale=22500
+		MomentumTransferScale=1.f
 
 		// Damage Effects
-		MyDamageType=class'KFDT_Explosive_Frag12'
-		KnockDownStrength=0
+		MyDamageType=class'KFDT_Explosive_Grenadier'
+		KnockDownStrength=10
 		FractureMeshRadius=200.0
 		FracturePartVel=500.0
-		//ExplosionEffects=KFImpactEffectInfo'WEP_HX25_Pistol_ARCH.HX25_Pistol_Submunition_Explosion'
-		ExplosionSound=AkEvent'WW_WEP_SA_HX25.Play_WEP_SA_HX25_Explosion'
-		ExplosionEffects=KFImpactEffectInfo'WEP_HRG_Kaboomstick_ARCH.WEP_HRG_Kaboomstick_Explosion'
-		//ExplosionSound=AkEvent'WW_WEP_Seeker_6.Play_WEP_Seeker_6_Explosion'
+		ExplosionEffects=KFImpactEffectInfo'WEP_HX25_Pistol_ARCH.HX25_Pistol_Submunition_Explosion'
+		ExplosionSound=AkEvent'WW_WEP_SA_HX25.Play_WEP_SA_HX25_Mini_Explosion'
+		bIgnoreInstigator=true
+		ActorClassToIgnoreForDamage=class'KFProj_Explosive_Grenadier'
 
         // Dynamic Light
         ExploLight=ExplosionPointLight
         ExploLightStartFadeOutTime=0.0
         ExploLightFadeOutTime=0.3
 
-		bIgnoreInstigator=true
-
 		// Camera Shake
-		CamShake=CameraShake'FX_CameraShake_Arch.Misc_Explosions.Light_Explosion_Rumble'
+		CamShake=KFCameraShake'FX_CameraShake_Arch.Misc_Explosions.Light_Explosion_Rumble'
 		CamShakeInnerRadius=0
 		CamShakeOuterRadius=300
 		CamShakeFalloff=1.5f
@@ -153,6 +148,9 @@ defaultproperties
 	End Object
 	ExplosionTemplate=ExploTemplate0
 
-	AmbientSoundPlayEvent=none
-    AmbientSoundStopEvent=none
+    //AmbientSoundPlayEvent=AkEvent'WW_WEP_Bullet_FlyBys.Play_WEP_Bullet_Flyby_Small'
+    //AmbientSoundStopEvent=AkEvent'WW_WEP_Bullet_FlyBys.Stop_WEP_Bullet_Flyby_Small'
+
+    AlwaysRelevantDistanceSquared=2250000 // 15m
 }
+

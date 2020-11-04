@@ -13,6 +13,11 @@ var(Recoil) float DoubleBarrelKickMomentum;
 /** How much to reduce shoot momentum when falling */
 var(Recoil) float FallingMomentumReduction;
 
+static simulated event EFilterTypeUI GetAltTraderFilter()
+{
+	return FT_Flame;
+}
+
 /**
  * Toggle between DEFAULT and ALTFIRE
  */
@@ -136,7 +141,7 @@ simulated function CauseMuzzleFlash(byte FireModeNum)
 	}
 }
 
-simulated function ModifyMagSizeAndNumber(out byte InMagazineCapacity, optional int FireMode = DEFAULT_FIREMODE, optional int UpgradeIndex = INDEX_NONE, optional KFPerk CurrentPerk)
+/*simulated function ModifyMagSizeAndNumber(out byte InMagazineCapacity, optional int FireMode = DEFAULT_FIREMODE, optional int UpgradeIndex = INDEX_NONE, optional KFPerk CurrentPerk)
 {
 	if (FireMode == BASH_FIREMODE)
 	{
@@ -154,7 +159,7 @@ simulated function ModifyMagSizeAndNumber(out byte InMagazineCapacity, optional 
 	{
 		CurrentPerk.ModifyMagSizeAndNumber(self, InMagazineCapacity, AssociatedPerkClasses, FireMode == ALTFIRE_FIREMODE, Class.Name);
 	}
-}
+}*/
 
 defaultproperties
 {

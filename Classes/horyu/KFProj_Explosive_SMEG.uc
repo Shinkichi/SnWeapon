@@ -1,26 +1,26 @@
-class KFProj_FlashBang_TacticalRifle extends KFProj_BallisticExplosive
+
+class KFProj_Explosive_SMEG extends KFProj_BallisticExplosive
 	hidedropdown;
 
 defaultproperties
 {
-	Physics=PHYS_Falling
+	Physics=PHYS_Projectile
 	Speed=4000
 	MaxSpeed=4000
-	TerminalVelocity=4000
-	TossZ=150
-	GravityScale=.5
+	TossZ=0
+	GravityScale=1.0
     MomentumTransfer=50000.0
-    ArmDistSquared=150000 // 4.0 meters
-    LifeSpan=25.0f
+    ArmDistSquared=0
 
 	bWarnAIWhenFired=true
 
-	ProjFlightTemplate=ParticleSystem'WEP_3P_M79_EMIT.FX_M79_40mm_Projectile'
-	ProjFlightTemplateZedTime=ParticleSystem'WEP_3P_M79_EMIT.FX_M79_40mm_Projectile_ZEDTIME'
-	ProjDudTemplate=ParticleSystem'WEP_3P_M79_EMIT.FX_M79_40mm_Projectile_Dud'
-	GrenadeBounceEffectInfo=KFImpactEffectInfo'FX_Impacts_ARCH.DefaultGrenadeImpacts'
+	ProjFlightTemplate=ParticleSystem'WEP_Bleeder_EMIT.FX_Bleeder_Projectile'
+	ProjFlightTemplateZedTime=ParticleSystem'WEP_Bleeder_EMIT.FX_Bleeder_Projectile'
+	ProjDudTemplate=ParticleSystem'WEP_Bleeder_EMIT.FX_Bleeder_Projectile'
+	GrenadeBounceEffectInfo=KFImpactEffectInfo'WEP_Bleeder_ARCH.Bleeder_bullet_impact'
     ProjDisintegrateTemplate=ParticleSystem'ZED_Siren_EMIT.FX_Siren_grenade_disable_01'
-	AltExploEffects=KFImpactEffectInfo'WEP_M79_ARCH.M79Grenade_Explosion_Concussive_Force'
+
+	ImpactEffects=KFImpactEffectInfo'WEP_Bleeder_ARCH.Bleeder_bullet_impact'
 
 	// Grenade explosion light
 	Begin Object Class=PointLightComponent Name=ExplosionPointLight
@@ -31,24 +31,26 @@ defaultproperties
 		CastShadows=False
 		CastStaticShadows=FALSE
 		CastDynamicShadows=False
+		bCastPerObjectShadows=false
 		bEnabled=FALSE
 		LightingChannels=(Indoor=TRUE,Outdoor=TRUE,bInitialized=TRUE)
 	End Object
 
 	// explosion
 	Begin Object Class=KFGameExplosion Name=ExploTemplate0
-		Damage=125  //300
-		DamageRadius=700  //800
-		DamageFalloffExponent=2.f
+		Damage=100  //300
+		DamageRadius=1000  //600
+		DamageFalloffExponent=1.f
 		DamageDelay=0.f
 
 		// Damage Effects
-		MyDamageType=class'KFDT_Explosive_TacticalRifleGrenade'
+		MyDamageType=class'KFDT_Explosive_SMEG'
 		KnockDownStrength=0
 		FractureMeshRadius=200.0
-		FracturePartVel=500.0	
-		ExplosionEffects=KFImpactEffectInfo'WEP_M84_ARCH.M84_Explosion'
-		ExplosionSound=AkEvent'WW_WEP_EXP_Grenade_Frag.Play_WEP_Flashbang'
+		FracturePartVel=500.0
+		ExplosionEffects=KFImpactEffectInfo'wep_Nailbomb_arch.Nailbomb_Explosion'
+		ExplosionSound=AkEvent'WW_EXP_Nail_Bomb.Play_Nail_Bomb_Explode'
+
 
         // Dynamic Light
         ExploLight=ExplosionPointLight
@@ -61,12 +63,11 @@ defaultproperties
 		CamShakeOuterRadius=900
 		CamShakeFalloff=1.5f
 		bOrientCameraShakeTowardsEpicenter=true
+
+		// Shards
+		ShardClass=class'KFProj_NailShard'
+		NumShards=10
 	End Object
 	ExplosionTemplate=ExploTemplate0
-
-	AssociatedPerkClass=class'KFPerk_SWAT'
-
-	AmbientSoundPlayEvent=AkEvent'WW_WEP_SA_M79.Play_WEP_SA_M79_Projectile_Loop'
-    AmbientSoundStopEvent=AkEvent'WW_WEP_SA_M79.Stop_WEP_SA_M79_Projectile_Loop'
-
 }
+

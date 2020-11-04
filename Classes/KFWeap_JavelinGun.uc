@@ -25,6 +25,12 @@ replication
 		NumDeployedHarpoons;
 }
 
+/** Returns trader filter index based on weapon type (copied from riflebase) */
+static simulated event EFilterTypeUI GetTraderFilter()
+{
+    return FT_Projectile;
+}
+
 /**
  * Toggle between DEFAULT and ALTFIRE
  */

@@ -4,4 +4,6 @@ class KFDT_Ballistic_BomberGun_Dual extends KFDT_Ballistic_BomberGun
 
 defaultproperties
 {
+	ModifierPerkList.Empty
+	ModifierPerkList(0)=class'KFPerk_Demolitionist'
 }

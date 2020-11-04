@@ -1,30 +1,30 @@
 
-class KFWeapDef_TacticalRifle extends KFWeaponDefinition
+class KFWeapDef_BreecherRifle extends KFWeaponDefinition
 	abstract;
 
 static function string GetItemName()
 {
-    return "Tactical Rifle";
+    return "Breecher Rifle";
 }
 
 static function string GetItemCategory()
 {
-	return "Tactical Rifle";
+	return "Breecher Rifle";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Tactical Rifle!!";
+    return "This is Breecher Rifle!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Tactical Rifle";
+	return "Breecher Rifle";
 }
 
 DefaultProperties
 {
-	WeaponClassPath="SnWeapon.KFWeap_AssaultRifle_TacticalRifle"
+	WeaponClassPath="SnWeapon.KFWeap_AssaultRifle_BreecherRifle"
 	
 	BuyPrice=1200
 	AmmoPricePerMag=30 //30

@@ -16,8 +16,7 @@ defaultproperties
 	KDeathVel=500 //225 //500
 
 	//Perk
-	ModifierPerkList(0)=class'KFPerk_Firebug'
-    ModifierPerkList(1)=class'KFPerk_Demolitionist'
+	ModifierPerkList(0)=class'KFPerk_Demolitionist'
 	
 	WeaponDef=class'KFWeapDef_Frag12'
 }
