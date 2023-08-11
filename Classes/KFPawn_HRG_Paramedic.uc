@@ -576,7 +576,7 @@ simulated state Combat
 
         if (Role == ROLE_Authority)
         {
-            if (EnemyTarget != none)  
+            if (EnemyTarget != none)
             {
                 // Trace from the Target reference to MuzzleLoc, because MuzzleLoc could be already inside physics, as it's outside the collider of the Drone!
                 HitActor = Trace(HitLocation, HitNormal, EnemyTarget.Mesh.GetBoneLocation('Spine1'), MuzzleLoc,,,,TRACEFLAG_Bullet);
@@ -594,8 +594,8 @@ simulated state Combat
                     EnemyTarget = none;
                     CheckForTargets();
 
-                    if (EnemyTarget == none)
-                    //if ((EnemyTarget == none) || (EnemyTarget.Health <= 0) || (EnemyTarget.Health >= EnemyTarget.HealthMax))
+                    //if (EnemyTarget == none)
+                    if ((EnemyTarget == none) || (EnemyTarget.Health <= 0) || (EnemyTarget.Health >= EnemyTarget.HealthMax))
                     {
                         SetTurretState(ETS_TargetSearch);
                         return;
@@ -603,8 +603,9 @@ simulated state Combat
                 }
             }
         }
-        
-        if (EnemyTarget != none)
+
+        //if (EnemyTarget != none)
+        if ((EnemyTarget != none) || (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax))
         {
             DesiredRotationRot = rotator(Normal(EnemyTarget.Mesh.GetBoneLocation('Spine1') - MuzzleLoc));
             DesiredRotationRot.Roll  = 0;
@@ -883,8 +884,9 @@ function CheckForTargets()
             CurrentDistance = Distance;
         }
     }
-    
-    if (EnemyTarget != none)
+
+    //if (EnemyTarget != none)
+    if ((EnemyTarget != none) || (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax))
     {
         SetTurretState(ETS_Combat);
     }
