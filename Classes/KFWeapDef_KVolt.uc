@@ -3,22 +3,22 @@ class KFWeapDef_KVolt extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "K-Volt";
+    return "K-Volt Medic SMG";
 }
 
 static function string GetItemCategory()
 {
-	return "K-Volt";
+	return "K-Volt Medic SMG";
 }
 
 static function string GetItemDescription()
 {
-    return "This is K-Volt!!";
+    return "This is K-Volt Medic SMG!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "K-Volt";
+	return "K-Volt Medic SMG";
 }
 
 DefaultProperties

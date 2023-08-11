@@ -8,14 +8,11 @@ defaultproperties
 	KDeathUpKick=250
 	KDeathVel=150
 
-
-
-    KnockdownPower=20
-	StunPower=101 //90
+	StunPower=101
 	StumblePower=250
 	GunHitPower=100
-	MeleeHitPower=40
 
 	ModifierPerkList(0)=class'KFPerk_Berserker'
+   	ModifierPerkList(1)=class'KFPerk_Sharpshooter'
 	WeaponDef=class'KFWeapDef_JavelinGun'
 }

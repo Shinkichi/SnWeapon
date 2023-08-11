@@ -4,22 +4,22 @@ class KFWeapDef_DoubleDragon extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Double Dragon";
+    return "Sawn-Offed Dragostick";
 }
 
 static function string GetItemCategory()
 {
-	return "Double Dragon";
+	return "Sawn-Offed Dragostick";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Double Dragon!!";
+    return "This is Sawn-Offed Dragostick!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Double Dragon";
+	return "Sawn-Offed Dragostick";
 }
 
 DefaultProperties

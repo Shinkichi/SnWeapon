@@ -4,22 +4,22 @@ class KFWeapDef_BomberGun extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "BomberGun";
+    return "Bombie";
 }
 
 static function string GetItemCategory()
 {
-	return "BomberGun";
+	return "Bombie";
 }
 
 static function string GetItemDescription()
 {
-    return "This is BomberGun!!";
+    return "This is Bombie!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "BomberGun";
+	return "Bombie";
 }
 
 DefaultProperties

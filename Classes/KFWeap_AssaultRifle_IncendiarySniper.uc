@@ -1,5 +1,10 @@
 class KFWeap_AssaultRifle_IncendiarySniper extends KFWeap_ScopedBase;
 
+static simulated event EFilterTypeUI GetAltTraderFilter()
+{
+	return FT_Flame;
+}
+
 defaultproperties
 {
 	// Shooting Animations
@@ -43,7 +48,7 @@ defaultproperties
 	MagazineCapacity[0]=30//20
 	SpareAmmoCapacity[0]=150//160
 	InitialSpareMags[0]=2//3
-	AmmoPickupScale[0]=0.67//1.0
+	AmmoPickupScale[0]=1.0
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
 

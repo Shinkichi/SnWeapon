@@ -27,7 +27,7 @@ DefaultProperties
 	WeaponClassPath="SnWeapon.KFWeap_PDR_Medic"
 
 	BuyPrice=750//650
-	AmmoPricePerMag=30//21
+	AmmoPricePerMag=24//30//21
 	ImagePath="ui_weaponselect_tex.UI_WeaponSelect_MedicSMG"
 
 	EffectiveRange=70

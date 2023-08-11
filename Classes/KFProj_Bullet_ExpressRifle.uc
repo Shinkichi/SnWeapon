@@ -3,6 +3,8 @@ class KFProj_Bullet_ExpressRifle extends KFProj_Bullet
 
 defaultproperties
 {
+	//Physics=PHYS_Falling
+
 	MaxSpeed=14000.0//7000.0
 	Speed=14000.0//7000.0
 

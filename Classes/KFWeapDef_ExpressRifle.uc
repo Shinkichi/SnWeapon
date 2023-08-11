@@ -4,22 +4,22 @@ class KFWeapDef_ExpressRifle extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Express Rifle";
+    return "Nitrostick";
 }
 
 static function string GetItemCategory()
 {
-	return "Express Rifle";
+	return "Nitrostick";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Express Rifle!!";
+    return "This is Nitrostick!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Express Rifle";
+	return "Nitrostick";
 }
 
 DefaultProperties
@@ -27,7 +27,7 @@ DefaultProperties
 	WeaponClassPath="SnWeapon.KFWeap_Rifle_ExpressRifle"
 
 	BuyPrice=1500
-	AmmoPricePerMag=25 //25
+	AmmoPricePerMag=30//25 //25
 	ImagePath="WEP_UI_Quad_Barrel_TEX.UI_WeaponSelect_QuadBarrel" //@TODO: Replace
 
 	EffectiveRange=15

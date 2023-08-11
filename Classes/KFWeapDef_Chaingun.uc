@@ -4,22 +4,22 @@ class KFWeapDef_Chaingun extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Chaingun";
+    return "Chaingunnner";
 }
 
 static function string GetItemCategory()
 {
-	return "Chaingun";
+	return "Chaingunnner";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Chaingun!!";
+    return "This is Chaingunnner!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Chaingun";
+	return "Chaingunnner";
 }
 
 DefaultProperties
@@ -27,7 +27,7 @@ DefaultProperties
 	WeaponClassPath="SnWeapon.KFWeap_Chaingun"
 
 	BuyPrice=1200//1100
-	AmmoPricePerMag=45
+	AmmoPricePerMag=100//45
 	ImagePath="wep_ui_cryogun_tex.UI_WeaponSelect_Cryogun"
 
 	EffectiveRange=17

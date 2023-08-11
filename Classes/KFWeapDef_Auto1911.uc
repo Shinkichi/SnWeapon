@@ -26,7 +26,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_Pistol_Auto1911"
 
-	BuyPrice=325
+	BuyPrice=375//325
 	AmmoPricePerMag=13
 	ImagePath="WEP_UI_M1911_TEX.UI_WeaponSelect_M1911Colt"
 

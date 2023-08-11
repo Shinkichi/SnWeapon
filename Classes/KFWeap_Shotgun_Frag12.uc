@@ -1,15 +1,30 @@
 // Frag12 Auto Shotgun - By Shinkichi 2020
 class KFWeap_Shotgun_Frag12 extends KFWeap_ShotgunBase;
 
+/** Reduction for the amount of damage dealt to the weapon owner (including damage by the explosion) */
+var float SelfDamageReductionValue;
+
 /** Returns trader filter index based on weapon type */
 static simulated event EFilterTypeUI GetTraderFilter()
 {
 	return FT_Explosive;
 }
 
+// Reduce damage to self
+function AdjustDamage(out int InDamage, class<DamageType> DamageType, Actor DamageCauser)
+{
+	super.AdjustDamage(InDamage, DamageType, DamageCauser);
+
+	if (Instigator != none && DamageCauser != none && DamageCauser.Instigator == Instigator)
+	{
+		InDamage *= SelfDamageReductionValue;
+	}
+}
 
 defaultproperties
 {
+	SelfDamageReductionValue=0.075f //0.f
+
 	// Inventory
 	InventorySize=10
 	GroupPriority=100
@@ -46,7 +61,7 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Frag12_Fireball'
-	InstantHitDamage(DEFAULT_FIREMODE)=15.0
+	InstantHitDamage(DEFAULT_FIREMODE)=40.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Explosive_Frag12Impact'
 	Spread(DEFAULT_FIREMODE) = 0.0085
 	FireOffset=(X=30,Y=5,Z=-4)
@@ -84,8 +99,8 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=20
-	SpareAmmoCapacity[0]=120
-	InitialSpareMags[0]=1
+	SpareAmmoCapacity[0]=160//120
+	InitialSpareMags[0]=2//1
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
 	bHasFireLastAnims=false
@@ -110,11 +125,12 @@ defaultproperties
 	HippedRecoilModifier=1.75
     
    	AssociatedPerkClasses(0)=class'KFPerk_Demolitionist'
+   	AssociatedPerkClasses(1)=class'KFPerk_Firebug'
 
 	WeaponFireWaveForm=ForceFeedbackWaveform'FX_ForceFeedback_ARCH.Gunfire.Heavy_Recoil'
 
 	// Weapon Upgrade stat boosts
 	//WeaponUpgrades[1]=(IncrementDamage=1.15f,IncrementWeight=1)
 
-	//WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.15f), (Stat=EWUS_Damage1, Scale=1.15f), (Stat=EWUS_Weight, Add=1)))
+	WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.15f), (Stat=EWUS_Damage1, Scale=1.15f), (Stat=EWUS_Weight, Add=1)))
 }

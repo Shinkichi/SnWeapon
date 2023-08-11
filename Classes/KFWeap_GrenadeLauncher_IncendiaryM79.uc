@@ -73,7 +73,7 @@ defaultproperties
 	HippedRecoilModifier=1.25
 
 	// DEFAULT_FIREMODE
-	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_Grenade'
+	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_Flamethrower'
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFireAndReload
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Grenade_HRGIncendiaryRifle'

@@ -26,7 +26,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_Pistol_DualAuto1911"
 
-	BuyPrice=650
+	BuyPrice=750//650
 	AmmoPricePerMag=26
 	ImagePath="WEP_UI_Dual_M1911_TEX.UI_WeaponSelect_DualM1911"
 

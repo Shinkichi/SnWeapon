@@ -4,22 +4,22 @@ class KFWeapDef_IncendiaryM79 extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Incendiary M79";
+    return "M79 Incendiary Launcher";
 }
 
 static function string GetItemCategory()
 {
-	return "Incendiary M79";
+	return "M79 Incendiary Launcher";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Incendiary M79!!";
+    return "This is M79 Incendiary Launcher!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Incendiary M79";
+	return "M79 Incendiary Launcher";
 }
 
 DefaultProperties

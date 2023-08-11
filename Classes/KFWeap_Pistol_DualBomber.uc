@@ -1,11 +1,60 @@
 class KFWeap_Pistol_DualBomber extends KFWeap_DualBase;
 
-/** Returns trader filter index based on weapon type */
-static simulated event EFilterTypeUI GetTraderFilter()
+var transient bool AlreadyIssuedCanNuke;
+
+simulated function KFProjectile SpawnAllProjectiles(class<KFProjectile> KFProjClass, vector RealStartLoc, vector AimDir)
+{
+	local KFProjectile Proj;
+
+	AlreadyIssuedCanNuke = false;
+
+	Proj = Super.SpawnAllProjectiles(KFProjClass, RealStartLoc, AimDir);
+
+	AlreadyIssuedCanNuke = false;
+
+	return Proj;
+}
+
+simulated function KFProjectile SpawnProjectile( class<KFProjectile> KFProjClass, vector RealStartLoc, vector AimDir )
+{
+	local KFProj_Explosive_BomberGun Proj;
+
+	Proj = KFProj_Explosive_BomberGun(Super.SpawnProjectile(KFProjClass, RealStartLoc, AimDir));
+
+	if (AlreadyIssuedCanNuke == false)
+	{
+		Proj.bCanNuke = true;
+		AlreadyIssuedCanNuke = true;
+	}
+	else
+	{
+		Proj.bCanNuke = false;
+	}
+
+	return Proj;
+}
+
+static simulated event EFilterTypeUI GetAltTraderFilter()
 {
 	return FT_Explosive;
 }
 
+/**
+ * See Pawn.ProcessInstantHit
+ * @param DamageReduction: Custom KF parameter to handle penetration damage reduction
+ */
+simulated function ProcessInstantHitEx(byte FiringMode, ImpactInfo Impact, optional int NumHits, optional out float out_PenetrationVal, optional int ImpactNum )
+{
+	local KFPerk InstigatorPerk;
+
+	InstigatorPerk = GetPerk();
+	if( InstigatorPerk != none )
+	{
+		InstigatorPerk.UpdatePerkHeadShots( Impact, InstantHitDamageTypes[FiringMode], ImpactNum );
+	}
+	
+	super.ProcessInstantHitEx( FiringMode, Impact, NumHits, out_PenetrationVal, ImpactNum );
+}
 
 defaultproperties
 {
@@ -38,8 +87,8 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=12 // twice as much as single
-	SpareAmmoCapacity[0]=132//180
-	InitialSpareMags[0]=7
+	SpareAmmoCapacity[0]=108//132//180
+	InitialSpareMags[0]=5//7
 	AmmoPickupScale[0]=1.0
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
@@ -69,7 +118,7 @@ defaultproperties
 	InstantHitDamage(DEFAULT_FIREMODE)=15.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_BomberGun_Dual'
 	Spread(DEFAULT_FIREMODE)=0.015
-	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletSingle'
+	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_Grenade'
 
 	// ALTFIRE_FIREMODE
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
@@ -79,7 +128,7 @@ defaultproperties
 	InstantHitDamage(ALTFIRE_FIREMODE)=15.0
 	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_BomberGun_Dual'
 	Spread(ALTFIRE_FIREMODE)=0.015
-	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletSingle'
+	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_Grenade'
 
 	// BASH_FIREMODE
 	InstantHitDamage(BASH_FIREMODE)=24.0
@@ -101,6 +150,7 @@ defaultproperties
 	bDropOnDeath=true
 	SingleClass=class'KFWeap_Pistol_Bomber'
     AssociatedPerkClasses(0)=class'KFPerk_Demolitionist'
+   	AssociatedPerkClasses(1)=class'KFPerk_Gunslinger'
 
 	// Attachments
 	bHasIronSights=true
@@ -124,5 +174,7 @@ defaultproperties
 	WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.25f), (Stat=EWUS_Damage1, Scale=1.25f)))
 	WeaponUpgrades[2]=(Stats=((Stat=EWUS_Damage0, Scale=1.5f), (Stat=EWUS_Damage1, Scale=1.5f), (Stat=EWUS_Weight, Add=2)))
 	WeaponUpgrades[3]=(Stats=((Stat=EWUS_Damage0, Scale=1.75f), (Stat=EWUS_Damage1, Scale=1.75f), (Stat=EWUS_Weight, Add=4)))
+	
+	AlreadyIssuedCanNuke = false
 }
 

@@ -3,22 +3,22 @@ class KFWeapDef_M1895 extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "USSR M1895";
+    return "M1895 Rimfire";
 }
 
 static function string GetItemCategory()
 {
-	return "USSR M1895";
+	return "M1895 Rimfire";
 }
 
 static function string GetItemDescription()
 {
-    return "This is USSR M1895!!";
+    return "This is M1895 Rimfire!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "USSR M1895";
+	return "M1895 Rimfire";
 }
 
 DefaultProperties

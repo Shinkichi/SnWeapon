@@ -25,9 +25,9 @@ defaultproperties
 	MuzzleFlashTemplateName="WEP_M1911_ARCH.Wep_M1911_MuzzleFlash"
 
 	// Ammo
-	MagazineCapacity[0]=20//8
-	SpareAmmoCapacity[0]=340//136
-	InitialSpareMags[0]=5
+	MagazineCapacity[0]=16//20//8
+	SpareAmmoCapacity[0]=272//340//136
+	InitialSpareMags[0]=7//5//7
 	AmmoPickupScale[0]=2.0
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
@@ -53,8 +53,8 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_PistolAuto1911'
-	FireInterval(DEFAULT_FIREMODE)=+0.0875
-	InstantHitDamage(DEFAULT_FIREMODE)=20.0
+	FireInterval(DEFAULT_FIREMODE)=+0.1
+	InstantHitDamage(DEFAULT_FIREMODE)=25//20.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Auto1911'
 	Spread(DEFAULT_FIREMODE)=0.015
 	PenetrationPower(DEFAULT_FIREMODE)=1.0
@@ -71,7 +71,7 @@ defaultproperties
 	InstantHitDamage(BASH_FIREMODE)=22
 
 	// Fire Effects
-	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_MedicPistol.Play_SA_MedicPistol_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_SA_MedicPistol.Play_SA_MedicPistol_Fire_1P')
+	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_9mm.Play_WEP_SA_9mm_Fire_Single_M', FirstPersonCue=AkEvent'WW_WEP_SA_9mm.Play_WEP_SA_9mm_Fire_Single_S')
 	WeaponDryFireSnd(DEFAULT_FIREMODE)=AkEvent'WW_WEP_1911.Play_WEP_SA_1911_Handling_DryFire'
 
 	// Attachments

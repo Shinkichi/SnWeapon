@@ -26,8 +26,8 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_AssaultRifle_LaserRifle"
 
-	BuyPrice=2500//2000
-	AmmoPricePerMag=75//66
+	BuyPrice=2000
+	AmmoPricePerMag=50//75//66
 	ImagePath="WEP_UI_Microwave_Assault_TEX.UI_WeaponSelect_Microwave_Assault"
 
 	EffectiveRange=70

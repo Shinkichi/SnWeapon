@@ -22,32 +22,6 @@ function bool ShouldWarnAIWhenFired()
 	return super.ShouldWarnAIWhenFired() && OwnerWeapon != none && OwnerWeapon.LastPelletFireTime < WorldInfo.TimeSeconds;
 }
 
-/**
- * Force the fire not to burn the instigator, since setting it in the default props is not working for some reason - Ramm
- */
-simulated protected function PrepareExplosionTemplate()
-{
-	local KFPawn KFP;
-	local KFPerk CurrentPerk;
-	
-	ExplosionTemplate.bIgnoreInstigator = true;
-
-    super.PrepareExplosionTemplate();
-
-    if( ExplosionActorClass == class'KFPerk_Demolitionist'.static.GetNukeExplosionActorClass() )
-    {
-		KFP = KFPawn( Instigator );
-		if( KFP != none )
-		{
-			CurrentPerk = KFP.GetPerk();
-			if( CurrentPerk != none )
-			{
-				CurrentPerk.SetLastHX25NukeTime( WorldInfo.TimeSeconds );
-			}
-		}
-	}
-}
-
 simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallComp)
 {
     // For some reason on clients up close shots with this projectile
@@ -63,23 +37,30 @@ simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallCom
     Super.HitWall(HitNormal, Wall, WallComp);
 }
 
-/** Only allow this projectile to cause a nuke if there hasn't been another nuke very recently */
-simulated function bool AllowNuke()
+simulated protected function PrepareExplosionTemplate()
 {
-	local KFPawn KFP;
-	local KFPerk CurrentPerk;
+	local KFPlayerReplicationInfo InstigatorPRI;
 
-	KFP = KFPawn( Instigator );
-	if( KFP != none )
+	if ( Instigator != none)
 	{
-		CurrentPerk = KFP.GetPerk();
-		if( CurrentPerk != none && `TimeSince(CurrentPerk.GetLastHX25NukeTime()) < 0.25f )
+		InstigatorPRI = KFPlayerReplicationInfo(Instigator.PlayerReplicationInfo);
+
+		if (InstigatorPRI != none && InstigatorPRI.CurrentPerkClass == class'KFPerk_Firebug')
 		{
-			return false;
+			ExplosionTemplate.ExplosionEffects.DefaultImpactEffect.ParticleTemplate = ParticleSystem'WEP_HuskCannon_EMIT.FX_Huskcannon_Impact_L1';
+			ExplosionTemplate.ExplosionSound = AkEvent'WW_ZED_Husk.ZED_Husk_SFX_Ranged_Shot_Impact';
+		}
+		else
+		{
+			ExplosionTemplate.ExplosionEffects.DefaultImpactEffect.ParticleTemplate = ParticleSystem'WEP_HuskCannon_EMIT.FX_Huskcannon_Impact_L1_CF';
+			ExplosionTemplate.ExplosionSound = AkEvent'WW_WEP_SA_RPG7.Play_WEP_SA_RPG7_Explosion';
 		}
 	}
 
-	return super.AllowNuke();
+	//ExplosionTemplate.ExplosionEffects.DefaultImpactEffect.ParticleTemplate = ParticleSystem'WEP_HuskCannon_EMIT.FX_Huskcannon_Impact_L1_CF';
+	//ExplosionTemplate.ExplosionSound = AkEvent'WW_WEP_SA_RPG7.Play_WEP_SA_RPG7_Explosion';
+
+    super.PrepareExplosionTemplate();
 }
 
 defaultproperties
@@ -99,54 +80,68 @@ defaultproperties
 	ProjFlightTemplate=ParticleSystem'WEP_HRG_Kaboomstick_EMIT.FX_HRG_Kaboomstick_Projectile'
 	ProjFlightTemplateZedTime=ParticleSystem'WEP_HRG_Kaboomstick_EMIT.FX_HRG_Kaboomstick_Projectile_ZEDTIME'
 	ProjDisintegrateTemplate=ParticleSystem'ZED_Siren_EMIT.FX_Siren_grenade_disable_01'
-	AltExploEffects=KFImpactEffectInfo'WEP_HRG_Kaboomstick_ARCH.WEP_HRG_Kaboomstick_Explosion_Concussive_Force'
+	//AltExploEffects=KFImpactEffectInfo'WEP_HRG_Kaboomstick_ARCH.WEP_HRG_Kaboomstick_Explosion_Concussive_Force'
+	AltExploEffects=KFImpactEffectInfo'WEP_M79_ARCH.M79Grenade_Explosion_Concussive_Force'
 	
 	AssociatedPerkClass(0)=class'KFPerk_Demolitionist'
 
+	// Fire light
+	Begin Object Class=PointLightComponent Name=FlamePointLight
+		LightColor = (R = 245,G = 190,B = 140,A = 255)
+		Brightness = 4.f
+		Radius = 500.f
+		FalloffExponent = 10.f
+		CastShadows = False
+		CastStaticShadows = FALSE
+		CastDynamicShadows = TRUE
+		bCastPerObjectShadows = false
+		bEnabled = FALSE
+		LightingChannels = (Indoor = TRUE,Outdoor = TRUE,bInitialized = TRUE)
+	End Object
+
 	// Grenade explosion light
 	Begin Object Class=PointLightComponent Name=ExplosionPointLight
-	    LightColor=(R=252,G=218,B=171,A=255)
-		Brightness=0.5f
-		Radius=400.f
-		FalloffExponent=10.f
-		CastShadows=False
-		CastStaticShadows=FALSE
-		CastDynamicShadows=False
-		bCastPerObjectShadows=false
-		bEnabled=FALSE
-		LightingChannels=(Indoor=TRUE,Outdoor=TRUE,bInitialized=TRUE)
+		LightColor = (R = 245,G = 190,B = 140,A = 255)
+		Brightness = 4.f
+		Radius = 2000.f
+		FalloffExponent = 10.f
+		CastShadows = False
+		CastStaticShadows = FALSE
+		CastDynamicShadows = False
+		bCastPerObjectShadows = false
+		bEnabled = FALSE
+		LightingChannels = (Indoor = TRUE,Outdoor = TRUE,bInitialized = TRUE)
 	End Object
 
 	// explosion
 	Begin Object Class=KFGameExplosion Name=ExploTemplate0
-		Damage=125
-		DamageRadius=250
-		DamageFalloffExponent=2  //3
+		Damage=90//100//120//125
+		DamageRadius=150//200//200//250
+		DamageFalloffExponent=1.f //1.0
 		DamageDelay=0.f
+		bUseOverlapCheck = true
 
-		MomentumTransferScale=22500
+		MomentumTransferScale=6000.f
 
 		// Damage Effects
 		MyDamageType=class'KFDT_Explosive_Frag12'
-		KnockDownStrength=0
+		KnockDownStrength=100
 		FractureMeshRadius=200.0
-		FracturePartVel=500.0
-		ExplosionEffects=KFImpactEffectInfo'WEP_SeekerSix_ARCH.FX_SeekerSix_Explosion'
-		ExplosionSound=AkEvent'WW_WEP_Seeker_6.Play_WEP_Seeker_6_Explosion'
-
-        // Dynamic Light
-        ExploLight=ExplosionPointLight
-        ExploLightStartFadeOutTime=0.0
-        ExploLightFadeOutTime=0.3
-
-		bIgnoreInstigator=true
+		FracturePartVel=100.0
+		ExplosionEffects=KFImpactEffectInfo'FX_Impacts_ARCH.Explosions.HuskProjectile_Explosion'
+		ExplosionSound=AkEvent'WW_ZED_Husk.ZED_Husk_SFX_Ranged_Shot_Impact'
+		ExplosionEmitterScale=2.f
+		
+		// Dynamic Light
+		ExploLight=ExplosionPointLight
+		ExploLightStartFadeOutTime = 0.0
+		ExploLightFadeOutTime = 0.5
 
 		// Camera Shake
-		CamShake=CameraShake'FX_CameraShake_Arch.Misc_Explosions.Light_Explosion_Rumble'
-		CamShakeInnerRadius=0
-		CamShakeOuterRadius=300
-		CamShakeFalloff=1.5f
+		CamShake = none
 		bOrientCameraShakeTowardsEpicenter=true
+
+		bIgnoreInstigator=false
 	End Object
 	ExplosionTemplate=ExploTemplate0
 

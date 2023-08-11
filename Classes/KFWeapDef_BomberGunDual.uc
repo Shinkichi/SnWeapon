@@ -4,22 +4,22 @@ class KFWeapDef_BomberGunDual extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Dual BomberGuns";
+    return "Dual Bombies";
 }
 
 static function string GetItemCategory()
 {
-	return "Dual BomberGuns";
+	return "Dual Bombies";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Dual BomberGuns!!";
+    return "This is Dual Bombies!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Dual BomberGuns";
+	return "Dual Bombies";
 }
 
 DefaultProperties

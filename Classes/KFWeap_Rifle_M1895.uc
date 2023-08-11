@@ -66,7 +66,7 @@ defaultproperties
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_M1895'
 	InstantHitDamage(DEFAULT_FIREMODE)=250
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_M1895'
-	FireInterval(DEFAULT_FIREMODE)=0.6
+	FireInterval(DEFAULT_FIREMODE)=0.5//0.6
 	Spread(DEFAULT_FIREMODE)=0.007
 	PenetrationPower(DEFAULT_FIREMODE)=3
 	FireOffset=(X=25,Y=3.0,Z=-2.5)

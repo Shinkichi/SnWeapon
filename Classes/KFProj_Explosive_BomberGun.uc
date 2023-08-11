@@ -5,6 +5,8 @@ class KFProj_Explosive_BomberGun extends KFProj_BallisticExplosive
 /** Cached reference to owner weapon */
 var protected KFWeapon OwnerWeapon;
 
+var bool bCanNuke;
+
 /** Initialize the projectile */
 function Init( vector Direction )
 {
@@ -28,25 +30,9 @@ function bool ShouldWarnAIWhenFired()
  */
 simulated protected function PrepareExplosionTemplate()
 {
-	local KFPawn KFP;
-	local KFPerk CurrentPerk;
-	
 	ExplosionTemplate.bIgnoreInstigator = true;
 
     super.PrepareExplosionTemplate();
-
-    if( ExplosionActorClass == class'KFPerk_Demolitionist'.static.GetNukeExplosionActorClass() )
-    {
-		KFP = KFPawn( Instigator );
-		if( KFP != none )
-		{
-			CurrentPerk = KFP.GetPerk();
-			if( CurrentPerk != none )
-			{
-				CurrentPerk.SetLastHX25NukeTime( WorldInfo.TimeSeconds );
-			}
-		}
-	}
 }
 
 simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallComp)
@@ -67,20 +53,7 @@ simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallCom
 /** Only allow this projectile to cause a nuke if there hasn't been another nuke very recently */
 simulated function bool AllowNuke()
 {
-	local KFPawn KFP;
-	local KFPerk CurrentPerk;
-
-	KFP = KFPawn( Instigator );
-	if( KFP != none )
-	{
-		CurrentPerk = KFP.GetPerk();
-		if( CurrentPerk != none && `TimeSince(CurrentPerk.GetLastHX25NukeTime()) < 0.25f )
-		{
-			return false;
-		}
-	}
-
-	return super.AllowNuke();
+	return bCanNuke;
 }
 
 defaultproperties
@@ -120,8 +93,8 @@ defaultproperties
 
 	// explosion
 	Begin Object Class=KFGameExplosion Name=ExploTemplate0
-		Damage=57//38
-		DamageRadius=200
+		Damage=57//38	//30
+		DamageRadius=200	//150
 		DamageFalloffExponent=1.0f
 		DamageDelay=0.f
 
@@ -133,7 +106,7 @@ defaultproperties
 		FractureMeshRadius=200.0
 		FracturePartVel=500.0
 		//ExplosionEffects=KFImpactEffectInfo'WEP_HX25_Pistol_ARCH.HX25_Pistol_Submunition_Explosion'
-		ExplosionSound=AkEvent'WW_WEP_SA_HX25.Play_WEP_SA_HX25_Explosion'
+		ExplosionSound=AkEvent'ww_wep_hrg_kaboomstick.WEP_HRG_Kaboomstick_Projectile_Explo'
 		ExplosionEffects=KFImpactEffectInfo'WEP_HRG_Kaboomstick_ARCH.WEP_HRG_Kaboomstick_Explosion'
 		//ExplosionSound=AkEvent'WW_WEP_Seeker_6.Play_WEP_Seeker_6_Explosion'
 
@@ -155,4 +128,6 @@ defaultproperties
 
 	AmbientSoundPlayEvent=none
     AmbientSoundStopEvent=none
+
+	bCanNuke = true
 }

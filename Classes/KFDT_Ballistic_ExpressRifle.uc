@@ -25,16 +25,16 @@ static simulated function bool CanDismemberHitZone( name InHitZoneName )
 
 defaultproperties
 {
-	BloodSpread=0.4
-	BloodScale=0.6
+	// Physics
+	KDamageImpulse=2750
+	KDeathUpKick=750
+	KDeathVel=450
 
-	KDamageImpulse=3500
-	KDeathUpKick=800
-	KDeathVel=650
-	GibImpulseScale=1.0
-
-    StumblePower=330//55
-	GunHitPower=450//75
+	// Afflictions
+    KnockdownPower=30
+	StunPower=40
+	StumblePower=50
+	GunHitPower=150
 
 	ModifierPerkList.Empty()
 	ModifierPerkList(0)=class'KFPerk_Sharpshooter'

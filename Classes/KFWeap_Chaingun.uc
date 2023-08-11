@@ -15,46 +15,6 @@ var() GameExplosion 		ExplosionTemplate;
 /** How much recoil the altfire should do */
 var protected const float AltFireRecoilScale;
 
-/** Allows weapon to calculate its own damage for display in trader */
-static simulated function float CalculateTraderWeaponStatDamage()
-{
-	local float BaseDamage, DoTDamage;
-	local class<KFDamageType> DamageType;
-
-	BaseDamage = default.InstantHitDamage[DEFAULT_FIREMODE];
-
-	DamageType = class<KFDamageType>(default.InstantHitDamageTypes[DEFAULT_FIREMODE]);
-	if (DamageType != none && DamageType.default.DoT_Type != DOT_None)
-	{
-		DoTDamage = (DamageType.default.DoT_Duration / DamageType.default.DoT_Interval) * (BaseDamage * DamageType.default.DoT_DamageScale);
-	}
-
-	return BaseDamage * default.NumPellets[DEFAULT_FIREMODE] + DoTDamage;
-}
-
-/*********************************************************************************************
- Firing / Projectile - Below projectile spawning code copied from KFWeap_ShotgunBase
-********************************************************************************************* */
-
-/** Spawn projectile is called once for each shot pellet fired */
-simulated function KFProjectile SpawnAllProjectiles(class<KFProjectile> KFProjClass, vector RealStartLoc, vector AimDir)
-{
-	local KFPerk InstigatorPerk;
-
-	if (CurrentFireMode == GRENADE_FIREMODE)
-	{
-		return Super.SpawnProjectile(KFProjClass, RealStartLoc, AimDir);
-	}
-
-	InstigatorPerk = GetPerk();
-	if (InstigatorPerk != none)
-	{
-		Spread[CurrentFireMode] = default.Spread[CurrentFireMode] * InstigatorPerk.GetTightChokeModifier();
-	}
-
-	return super.SpawnAllProjectiles(KFProjClass, RealStartLoc, AimDir);
-}
-
 /** Handle one-hand fire anims */
 simulated function name GetWeaponFireAnim(byte FireModeNum)
 {
@@ -177,10 +137,162 @@ simulated function bool IsHeavyWeapon()
 /** No pilot light on freeze thrower */
 simulated function SetPilotDynamicLightEnabled( bool bLightEnabled );
 
+/** Returns trader filter index based on weapon type */
 static simulated event EFilterTypeUI GetTraderFilter()
 {
-	return FT_Electric;
+	return FT_Assault;
 }
+
+static simulated event EFilterTypeUI GetAltTraderFilter()
+{
+	return FT_Shotgun;
+}
+
+/*********************************************************************************************
+ Firing / Projectile - Below projectile spawning code copied from KFWeap_ShotgunBase
+********************************************************************************************* */
+
+/** Spawn projectile is called once for each shot pellet fired */
+simulated function KFProjectile SpawnAllProjectiles(class<KFProjectile> KFProjClass, vector RealStartLoc, vector AimDir)
+{
+	local KFPerk InstigatorPerk;
+
+	if (CurrentFireMode == GRENADE_FIREMODE)
+	{
+		return Super.SpawnProjectile(KFProjClass, RealStartLoc, AimDir);
+	}
+
+	InstigatorPerk = GetPerk();
+	if (InstigatorPerk != none)
+	{
+		Spread[CurrentFireMode] = default.Spread[CurrentFireMode] * InstigatorPerk.GetTightChokeModifier();
+	}
+
+	return super.SpawnAllProjectiles(KFProjClass, RealStartLoc, AimDir);
+}
+
+/*********************************************************************************************
+ * state SprayingFire
+ * This is the default Firing State for flame weapons.
+ *********************************************************************************************/
+
+/** Runs on a loop when firing to determine if AI should be warned */
+function Timer_CheckForAIWarning();
+
+simulated state WeaponBurstFiring
+{
+	simulated function BeginState( Name PreviousStateName )
+	{
+		AmmoConsumed = 0;
+		TurnOnFireSpray();
+
+		// Start timer to warn AI
+		if( bWarnAIWhenFiring )
+		{
+			Timer_CheckForAIWarning();
+			SetTimer( 0.5f, true, nameOf(Timer_CheckForAIWarning) );
+		}
+
+		super.BeginState(PreviousStateName);
+	}
+
+	/** Leaving state, shut everything down. */
+	simulated function EndState(Name NextStateName)
+	{
+		if (bFireSpraying)
+		{
+			TurnOffFireSpray();
+		}
+		ClearFlashLocation();
+		ClearTimer('RefireCheckTimer');
+		ClearPendingFire(0);
+
+		// Clear AI warning timer
+		if( bWarnAIWhenFiring )
+		{
+			ClearTimer( nameOf(Timer_CheckForAIWarning) );
+		}
+
+		super.EndState(NextStateName);
+	}
+
+	/** Overriden here to enforce a minimum amount of ammo consumed (to make sure the flame stays on a minimum duration) */
+	simulated function ConsumeAmmo( byte FireMode )
+	{
+		global.ConsumeAmmo(FireMode);
+
+		AmmoConsumed++;
+	}
+
+	/**
+	 * Check if current fire mode can/should keep on firing.
+	 * This is called from a firing state after each shot is fired
+	 * to decide if the weapon should fire again, or stop and go to the active state.
+	 * The default behavior, implemented here, is keep on firing while player presses fire
+	 * and there is enough ammo. (Auto Fire).
+	 *
+	 * @return	true to fire again, false to stop firing and return to Active State.
+	 */
+	simulated function bool ShouldRefire()
+	{
+		// if doesn't have ammo to keep on firing, then stop
+		if( !HasAmmo( CurrentFireMode ) )
+		{
+			return false;
+		}
+
+		// refire if owner is still willing to fire or if we've matched or surpassed minimum
+		// amount of ammo consumed
+		return ( StillFiring(CurrentFireMode) || AmmoConsumed < MinAmmoConsumed );
+	}
+
+	/** Runs on a loop when firing to determine if AI should be warned */
+	function Timer_CheckForAIWarning()
+	{
+		local vector Direction, DangerPoint;
+		local vector TraceStart, Projection;
+		local Pawn P;
+		local KFPawn_Monster HitMonster;
+
+		TraceStart = Instigator.GetWeaponStartTraceLocation();
+		Direction = vector( GetAdjustedAim(TraceStart) );
+
+	    // Warn all zeds within range
+	    foreach WorldInfo.AllPawns( class'Pawn', P )
+	    {
+	        if( P.GetTeamNum() != Instigator.GetTeamNum() && !P.IsHumanControlled() && P.IsAliveAndWell() )
+	        {
+	            // Determine if AI is within range as well as within our field of view
+	            Projection = P.Location - TraceStart;
+	            if( VSizeSQ(Projection) < MaxAIWarningDistSQ )
+	            {
+	                PointDistToLine( P.Location, Direction, TraceStart, DangerPoint );
+
+		            if( VSizeSQ(DangerPoint - P.Location) < MaxAIWarningDistFromPointSQ )
+		            {
+		                // Tell the AI to evade away from the DangerPoint
+		                HitMonster = KFPawn_Monster( P );
+		                if( HitMonster != none && HitMonster.MyKFAIC != None )
+		                {
+		                    HitMonster.MyKFAIC.ReceiveLocationalWarning( DangerPoint, TraceStart, self );
+		                }
+		            }
+		        }
+	        }
+	    }
+	}
+
+	simulated function bool IsFiring()
+	{
+		return TRUE;
+	}
+
+	simulated function bool TryPutDown()
+	{
+		bWeaponPutDown = TRUE;
+		return FALSE;
+	}
+};
 
 defaultproperties
 {
@@ -240,10 +352,10 @@ defaultproperties
 	bReloadFromMagazine=true
 
 	// Recoil
-	maxRecoilPitch=200
-	minRecoilPitch=150
-	maxRecoilYaw=175
-	minRecoilYaw=-125
+	maxRecoilPitch=150
+	minRecoilPitch=115
+	maxRecoilYaw=80 //115
+	minRecoilYaw=-80 //-115
 	RecoilRate=0.085
 	RecoilMaxYawLimit=500
 	RecoilMinYawLimit=65035
@@ -253,36 +365,39 @@ defaultproperties
 	RecoilISMinYawLimit=65460
 	RecoilISMaxPitchLimit=375
 	RecoilISMinPitchLimit=65460
-	IronSightMeshFOVCompensationScale=2.5
+	RecoilViewRotationScale=0.25
+	IronSightMeshFOVCompensationScale=1.5
     HippedRecoilModifier=1.5
-	AltFireRecoilScale=4.0f
+	AltFireRecoilScale=6.0f //4.0f
 
     // Inventory
-	InventorySize=7
+	InventorySize=8//7
 	GroupPriority=75
 	WeaponSelectTexture=Texture2D'wep_ui_cryogun_tex.UI_WeaponSelect_Cryogun'
 
 	// DEFAULT_FIREMODE
 	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletAuto'
-	FiringStatesArray(DEFAULT_FIREMODE)=SprayingFire//WeaponFiring
+	//FiringStatesArray(DEFAULT_FIREMODE)=SprayingFire
+	FiringStatesArray(DEFAULT_FIREMODE)=WeaponBurstFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
-	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_Pellet'
-	InstantHitDamage(DEFAULT_FIREMODE)=20//24
+	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_Pellet_Chaingun'
+	InstantHitDamage(DEFAULT_FIREMODE)=25//20
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Chaingun'
-	FireInterval(DEFAULT_FIREMODE)=+0.06 // 1250 RPM
+	FireInterval(DEFAULT_FIREMODE)=+0.06 // 1250 RPM//+0.07 // 850 RPM
 	PenetrationPower(DEFAULT_FIREMODE)=2.0
 	Spread(DEFAULT_FIREMODE)=0.07
 	FireOffset=(X=50,Y=10.0,Z=-15)
-	MinAmmoConsumed=5//4
+	MinAmmoConsumed=4
+	//BurstAmount=10
 
 	// ALT_FIREMODE
 	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletAuto'
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
-	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_Pellet'
-	InstantHitDamage(ALTFIRE_FIREMODE)=20//24
+	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_Pellet_Chaingun'
+	InstantHitDamage(ALTFIRE_FIREMODE)=25//20
 	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_Chaingun'
-	FireInterval(ALTFIRE_FIREMODE)=0.6
+	FireInterval(ALTFIRE_FIREMODE)=0.6f
 	PenetrationPower(ALTFIRE_FIREMODE)=2.0
 	AmmoCost(ALTFIRE_FIREMODE)=10
 	NumPellets(ALTFIRE_FIREMODE)=10
@@ -318,7 +433,8 @@ defaultproperties
 	AssociatedPerkClasses.Empty()
    	AssociatedPerkClasses(0)=class'KFPerk_Commando'
    	AssociatedPerkClasses(1)=class'KFPerk_Support'
-   
+   	AssociatedPerkClasses(2)=class'KFPerk_SWAT'
+
 	// Eviscerator uses its own anim tree with its own specified bones to lock, so leave it alone
 	BonesToLockOnEmpty.Empty()
    

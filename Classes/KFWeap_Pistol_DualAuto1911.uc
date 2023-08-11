@@ -43,9 +43,9 @@ defaultproperties
 	DOF_FG_MaxNearBlurSize=3.5
 
 	// Ammo
-	MagazineCapacity[0]=40//16
-	SpareAmmoCapacity[0]=320//128
-	InitialSpareMags[0]=2//3
+	MagazineCapacity[0]=32//40//16
+	SpareAmmoCapacity[0]=256//320//128
+	InitialSpareMags[0]=3//2//3
 	AmmoPickupScale[0]=1.0
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
@@ -70,8 +70,8 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_PistolAuto1911'
-	FireInterval(DEFAULT_FIREMODE)=+.05
-	InstantHitDamage(DEFAULT_FIREMODE)=20.0
+	FireInterval(DEFAULT_FIREMODE)=+0.055
+	InstantHitDamage(DEFAULT_FIREMODE)=25//20.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Auto1911'
 	PenetrationPower(DEFAULT_FIREMODE)=0
 	Spread(DEFAULT_FIREMODE)=0.015
@@ -82,8 +82,8 @@ defaultproperties
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponFiring
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_InstantHit
 	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_PistolAuto1911'
-	FireInterval(ALTFIRE_FIREMODE)=+.05 // 1200 RPM?
-	InstantHitDamage(ALTFIRE_FIREMODE)=20.0
+	FireInterval(ALTFIRE_FIREMODE)=+0.055
+	InstantHitDamage(ALTFIRE_FIREMODE)=25//20.0
 	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_Auto1911'
 	PenetrationPower(ALTFIRE_FIREMODE)=0
 	Spread(ALTFIRE_FIREMODE)=0.015
@@ -95,10 +95,9 @@ defaultproperties
 	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_Auto1911'
 
 	// Fire Effects
-	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_MedicPistol.Play_SA_MedicPistol_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_SA_MedicPistol.Play_SA_MedicPistol_Fire_1P')
+	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_9mm.Play_WEP_SA_9mm_Fire_Single_M', FirstPersonCue=AkEvent'WW_WEP_SA_9mm.Play_WEP_SA_9mm_Fire_Single_S')
 	WeaponDryFireSnd(DEFAULT_FIREMODE)=AkEvent'WW_WEP_1911.Play_WEP_SA_1911_Handling_DryFire'
-
-	WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_MedicPistol.Play_SA_MedicPistol_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_SA_MedicPistol.Play_SA_MedicPistol_Fire_1P')
+	WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_9mm.Play_WEP_SA_9mm_Fire_Single_M', FirstPersonCue=AkEvent'WW_WEP_SA_9mm.Play_WEP_SA_9mm_Fire_Single_S')
 	WeaponDryFireSnd(ALTFIRE_FIREMODE)=AkEvent'WW_WEP_1911.Play_WEP_SA_1911_Handling_DryFire'
 
 	// Attachments

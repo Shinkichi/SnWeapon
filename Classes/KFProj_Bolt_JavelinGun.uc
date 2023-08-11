@@ -1,27 +1,25 @@
-class KFProj_Bolt_JavelinGun extends KFProj_RicochetStickBullet
+class KFProj_Bolt_JavelinGun extends KFProj_Bolt_Crossbow
 	hidedropdown;
 
-// Last location needs to be correct, even on first tick.
-simulated function SyncOriginalLocation()
-{
-    LastLocation = OriginalLocation;
-
-    Super.SyncOriginalLocation();
-}
 
 defaultproperties
 {
+	//Physics=PHYS_Falling
+
 	bWarnAIWhenFired=true
 
-	MaxSpeed=15000.0
-	Speed=15000.0
+	// Speed is defined by the charge level of the bow:
+	MaxSpeed=7500//15000.0
+	Speed=7500//15000.0
+	TerminalVelocity=7500//15000.0
 
 	DamageRadius=0
 
     BouncesLeft=0
 	ProjFlightTemplate=ParticleSystem'WEP_Crossbow_EMIT.FX_Crossbow_Projectile'
+	//ProjIndicatorTemplate=ParticleSystem'WEP_Seal_Squeal_EMIT.FX_Harpoon_Projectile_Indicator'
 
-    LifeSpan=8
+    LifeSpan=10
     LifeSpanAfterStick=180
 
     bBlockedByInstigator=false

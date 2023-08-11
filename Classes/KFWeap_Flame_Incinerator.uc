@@ -237,8 +237,8 @@ defaultproperties
 	IronSightPosition=(X=3,Y=6,Z=-1)
 
 	// Ammo
-	MagazineCapacity[0]=50
-	SpareAmmoCapacity[0]=250
+	MagazineCapacity[0]=45//50
+	SpareAmmoCapacity[0]=225//250
 	InitialSpareMags[0]=1
 	AmmoPickupScale[0]=0.8
 	bCanBeReloaded=true
@@ -264,7 +264,7 @@ defaultproperties
     HippedRecoilModifier=1.5
 
     // Inventory
-	InventorySize=7 //8
+	InventorySize=8//7
 	GroupPriority=75
 	WeaponSelectTexture=Texture2D'ui_weaponselect_tex.UI_WeaponSelect_Flamethrower'
 
@@ -274,11 +274,11 @@ defaultproperties
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Incinerator'
 	FireInterval(DEFAULT_FIREMODE)=+.075
-	InstantHitDamage(DEFAULT_FIREMODE)=20.0//30.0////40.0
+	InstantHitDamage(DEFAULT_FIREMODE)=30.0//40.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Fire_Incinerator'
 	Spread(DEFAULT_FIREMODE)=0.015
 	FireOffset=(X=30,Y=4.5,Z=-5)
-	BurstAmount=4
+	BurstAmount=3//4
 
 	// ALT_FIREMODE
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponFiring

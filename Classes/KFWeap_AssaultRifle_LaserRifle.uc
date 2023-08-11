@@ -55,6 +55,11 @@ simulated state WeaponBurstFiring
 	}
 }
 
+static simulated event EFilterTypeUI GetAltTraderFilter()
+{
+	return FT_Electric;
+}
+
 defaultproperties
 {
     // FOV
@@ -79,8 +84,8 @@ defaultproperties
 	MuzzleFlashTemplateName="WEP_Microwave_Assault_ARCH.Wep_Microwave_Gun_MuzzleFlash" //@TODO: Replace
 
 	// Ammo
-	MagazineCapacity[0]=60//75//40
-	SpareAmmoCapacity[0]=480//525//320
+	MagazineCapacity[0]=50//60//75//40
+	SpareAmmoCapacity[0]=400//480//525//320
 	InitialSpareMags[0]=2
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
@@ -155,5 +160,5 @@ defaultproperties
 	bHasIronSights=true
 	bHasFlashlight=false
 
-	AssociatedPerkClasses(0)=class'KFPerk_Survivalist'
+	AssociatedPerkClasses(0)=class'KFPerk_Commando'
 }

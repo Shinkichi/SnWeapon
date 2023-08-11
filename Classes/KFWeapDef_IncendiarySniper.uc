@@ -4,29 +4,29 @@ class KFWeapDef_IncendiarySniper extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Incendiary Sniper";
+    return "DSA SA58 ACOG";
 }
 
 static function string GetItemCategory()
 {
-	return "Incendiary Sniper";
+	return "DSA SA58 ACOG";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Incendiary Sniper!!";
+    return "This is DSA SA58 ACOG!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Incendiary Sniper";
+	return "DSA SA58 ACOG";
 }
 
 DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_AssaultRifle_IncendiarySniper"
 
-	BuyPrice=1500 //1500
+	BuyPrice=1600 //1500
 	AmmoPricePerMag=71//47
 	ImagePath="WEP_UI_FNFAL_TEX.UI_WeaponSelect_FNFAL"
 	

@@ -3,22 +3,22 @@ class KFWeapDef_JavelinGun extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "JavelinGun";
+    return "Monodon Snitch";
 }
 
 static function string GetItemCategory()
 {
-	return "JavelinGun";
+	return "Monodon Snitch";
 }
 
 static function string GetItemDescription()
 {
-    return "This is JavelinGun!!";
+    return "This is Monodon Snitch!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "JavelinGun";
+	return "Monodon Snitch";
 }
 
 
@@ -26,8 +26,8 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_JavelinGun"
 
-	BuyPrice=1100
-	AmmoPricePerMag=75
+	BuyPrice=1300//1100
+	AmmoPricePerMag=110//55//75
 	ImagePath="WEP_UI_Seal_Squeal_TEX.UI_WeaponSelect_SealSqueal"
 
 	EffectiveRange=70

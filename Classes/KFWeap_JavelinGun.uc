@@ -1,84 +1,8 @@
 class KFWeap_JavelinGun extends KFWeap_GrenadeLauncher_Base;
-
-var(Animations) const editconst name DetonateAnim;
-var(Animations) const editconst name DetonateAnimLast;
-var(Animations) const editconst name DetonateAnimIron;
-var(Animations) const editconst name DetonateAnimIronLast;
-
-/** List of spawned harpoons (will be detonated oldest to youngest) */
-var array<KFProj_Rocket_JavelinGun> DeployedHarpoons;
-
-/** Same as DeployedHarpoons.Length, but replicated because harpoons are only tracked on server */
-var int NumDeployedHarpoons;
-
 /** Reduction for the amount of damage dealt to the weapon owner (including damage by the explosion) */
 var float SelfDamageReductionValue;
 
-/** Camera shake when detonating the harpoons */
-var	CameraAnim	DetonateCameraAnim;
-var float DetonateCameraAnimPlayRate;
-var float DetonateCameraAnimScale;
-
-replication
-{
-	if( bNetDirty )
-		NumDeployedHarpoons;
-}
-
-/** Returns trader filter index based on weapon type (copied from riflebase) */
-static simulated event EFilterTypeUI GetTraderFilter()
-{
-    return FT_Projectile;
-}
-
-/**
- * Toggle between DEFAULT and ALTFIRE
- */
-simulated function AltFireMode()
-{
-	// skip super
-
-	if (!Instigator.IsLocallyControlled())
-	{
-		return;
-	}
-
-	StartFire(ALTFIRE_FIREMODE);
-}
-
-/** Overridded to add spawned charge to list of spawned charges */
-simulated function Projectile ProjectileFire()
-{
-	local Projectile P;
-	local KFProj_Rocket_JavelinGun Harpoon;
-
-	P = super.ProjectileFire();
-
-	Harpoon = KFProj_Rocket_JavelinGun(P);
-	if (Harpoon != none)
-	{
-		DeployedHarpoons.AddItem(Harpoon);
-		NumDeployedHarpoons = DeployedHarpoons.Length;
-		bForceNetUpdate = true;
-	}
-
-	return P;
-}
-
-/** Returns animation to play based on reload type and status */
-simulated function name GetReloadAnimName(bool bTacticalReload)
-{
-	// magazine relaod
-	if (AmmoCount[0] > 0)
-	{
-		return (bTacticalReload) ? ReloadNonEmptyMagEliteAnim : ReloadNonEmptyMagAnim;
-	}
-	else
-	{
-		return (bTacticalReload) ? ReloadEmptyMagEliteAnim : ReloadEmptyMagAnim;
-	}
-}
-
+// Reduce damage to self
 function AdjustDamage(out int InDamage, class<DamageType> DamageType, Actor DamageCauser)
 {
 	super.AdjustDamage(InDamage, DamageType, DamageCauser);
@@ -89,26 +13,14 @@ function AdjustDamage(out int InDamage, class<DamageType> DamageType, Actor Dama
 	}
 }
 
-/*********************************************************************************************
- * State WeaponDetonating
- * The weapon is in this state while detonating a charge
-*********************************************************************************************/
-
-simulated function GotoActiveState();
-
-simulated state WeaponDetonating
+simulated function AltFireMode()
 {
-	ignores AllowSprinting;
-
-	simulated event BeginState( name PreviousStateName )
+	if ( !Instigator.IsLocallyControlled() )
 	{
-		PrepareAndDetonate();
+		return;
 	}
 
-	simulated function GotoActiveState()
-	{
-		GotoState('Active');
-	}
+	StartFire(ALTFIRE_FIREMODE);
 }
 
 // GrenadeLaunchers determine ShouldPlayFireLast based on the spare ammo
@@ -118,111 +30,16 @@ simulated function bool ShouldPlayFireLast(byte FireModeNum)
 	return Super(KFWeapon).ShouldPlayFireLast(FireModeNum);
 }
 
-simulated function PrepareAndDetonate()
+/** Returns trader filter index based on weapon type (copied from riflebase) */
+static simulated event EFilterTypeUI GetTraderFilter()
 {
-	local name SelectedAnim;
-	local float AnimDuration;
-	local bool bInSprintState;
-
-	// choose the detonate animation based on whether it is in ironsights and whether it is the last harpoon
-	if (bUsingSights)
-	{
-		SelectedAnim = ShouldPlayFireLast(DEFAULT_FIREMODE) ? DetonateAnimIronLast : DetonateAnimIron;
-	}
-	else
-	{
-		SelectedAnim = ShouldPlayFireLast(DEFAULT_FIREMODE) ? DetonateAnimLast : DetonateAnim;
-	}
-
-	AnimDuration = MySkelMesh.GetAnimLength(SelectedAnim);
-	bInSprintState = IsInState('WeaponSprinting');
-
-	if (WorldInfo.NetMode != NM_DedicatedServer)
-	{
-		if (NumDeployedHarpoons > 0)
-		{
-			PlayCameraAnim(DetonateCameraAnim, DetonateCameraAnimScale, DetonateCameraAnimPlayRate, 0.2f, 0.2f);
-			//PlaySoundBase( DetonateAkEvent, true );
-		}
-		else
-		{
-			//PlaySoundBase( DryFireAkEvent, true );
-		}
-
-		if (bInSprintState)
-		{
-			AnimDuration *= 0.25f;
-			PlayAnimation(SelectedAnim, AnimDuration);
-		}
-		else
-		{
-			PlayAnimation(SelectedAnim);
-		}
-	}
-
-	if (Role == ROLE_Authority)
-	{
-		Detonate();
-	}
-
-	// Don't want to play muzzle effects or shoot animation on detonate in 3p
-	//IncrementFlashCount();
-
-	AnimDuration = 1.f;
-	if (bInSprintState)
-	{
-		SetTimer(AnimDuration * 0.8f, false, nameof(PlaySprintStart));
-	}
-	else
-	{
-		SetTimer(AnimDuration * 0.5f, false, nameof(GotoActiveState));
-	}
-}
-
-/** Detonates all the harpoons */
-simulated function Detonate()
-{
-	local int i;
-
-	// auto switch weapon when out of ammo and after detonating the last deployed charge
-	if (Role == ROLE_Authority)
-	{
-		for (i = DeployedHarpoons.Length - 1; i >= 0; i--)
-		{
-			DeployedHarpoons[i].Detonate();
-		}
-
-		if (!HasAnyAmmo() && NumDeployedHarpoons == 0)
-		{
-			if (CanSwitchWeapons())
-			{
-	            Instigator.Controller.ClientSwitchToBestWeapon(false);
-			}
-		}
-	}
-}
-
-/** Removes a charge from the list using either an index or an actor and updates NumDeployedHarpoons */
-function RemoveDeployedHarpoon(optional int HarpoonIndex = INDEX_NONE, optional Actor HarpoonActor)
-{
-	if (HarpoonIndex == INDEX_NONE)
-	{
-		if (HarpoonActor != none)
-		{
-			HarpoonIndex = DeployedHarpoons.Find(HarpoonActor);
-		}
-	}
-
-	if (HarpoonIndex != INDEX_NONE)
-	{
-		DeployedHarpoons.Remove(HarpoonIndex, 1);
-		NumDeployedHarpoons = DeployedHarpoons.Length;
-		bForceNetUpdate = true;
-	}
+    return FT_Projectile;
 }
 
 defaultproperties
 {
+	SelfDamageReductionValue=0.075f //0.f
+
 	// Content
 	PackageKey="JavelinGun"
 	FirstPersonMeshName="wep_1p_seal_squeal_mesh.WEP_1stP_Seal_Squeal_Rig"
@@ -232,10 +49,11 @@ defaultproperties
 	MuzzleFlashTemplateName="WEP_Seal_Squeal_ARCH.Wep_Seal_Squeal_MuzzleFlash" //@TODO: Replace me
 
 	// Inventory / Grouping
-	InventorySize=8
+	InventorySize=7 //8
 	GroupPriority=75
 	WeaponSelectTexture=Texture2D'WEP_UI_Seal_Squeal_TEX.UI_WeaponSelect_SealSqueal'
    	AssociatedPerkClasses(0)=class'KFPerk_Berserker'
+   	AssociatedPerkClasses(1)=class'KFPerk_Sharpshooter'
 
     // FOV
     MeshFOV=75
@@ -248,7 +66,7 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=5
-	SpareAmmoCapacity[0]=25
+	SpareAmmoCapacity[0]=30 //25
 	InitialSpareMags[0]=1
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
@@ -284,16 +102,23 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bolt_JavelinGun'
-	InstantHitDamage(DEFAULT_FIREMODE)=350.0
+	InstantHitDamage(DEFAULT_FIREMODE)=250//350.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Piercing_JavelinGun'
-	FireInterval(DEFAULT_FIREMODE)=0.75
-	Spread(DEFAULT_FIREMODE)=0.007 //0.007
+	FireInterval(DEFAULT_FIREMODE)=0.5//0.75
+	Spread(DEFAULT_FIREMODE)=0
 	PenetrationPower(DEFAULT_FIREMODE)=4.0
 	FireOffset=(X=25,Y=3.0,Z=-2.5)
-
+	
 	// ALT_FIREMODE
+	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletArrow'
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
-	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_None
+	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
+	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bolt_JavelinGun_Alt'
+	InstantHitDamage(ALTFIRE_FIREMODE)=125
+	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_JavelinGun_Alt'
+	FireInterval(ALTFIRE_FIREMODE)=0.5//0.75
+	Spread(ALTFIRE_FIREMODE)=0
+	PenetrationPower(ALTFIRE_FIREMODE)=0
 
 	// BASH_FIREMODE
 	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_JavelinGun'
@@ -307,6 +132,9 @@ defaultproperties
 	// Fire Effects
 	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SealSqueal.Play_WEP_SealSqueal_Shoot_3P', FirstPersonCue=AkEvent'WW_WEP_SealSqueal.Play_WEP_SealSqueal_Shoot_1P') //@TODO: Replace me
 	WeaponDryFireSnd(DEFAULT_FIREMODE)=AkEvent'WW_WEP_SealSqueal.Play_WEP_SealSqueal_Shoot_DryFire' //@TODO: Replace me
+
+	WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SealSqueal.Play_WEP_SealSqueal_Shoot_3P', FirstPersonCue=AkEvent'WW_WEP_SealSqueal.Play_WEP_SealSqueal_Shoot_1P') //@TODO: Replace me
+	WeaponDryFireSnd(ALTFIRE_FIREMODE)=AkEvent'WW_WEP_SealSqueal.Play_WEP_SealSqueal_Shoot_DryFire' //@TODO: Replace me
 	EjectedShellForegroundDuration=1.5f
 
 	// Attachments
@@ -315,18 +143,6 @@ defaultproperties
 
 	WeaponFireWaveForm=ForceFeedbackWaveform'FX_ForceFeedback_ARCH.Gunfire.Medium_Recoil'
 
-	DetonateAnim=Alt_Fire
-	DetonateAnimLast=Alt_Fire_Last
-	DetonateAnimIron=Alt_Fire_Iron
-	DetonateAnimIronLast=Alt_Fire_Iron_Last
-
 	WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.15f), (Stat=EWUS_Weight, Add=1)))
 	WeaponUpgrades[2]=(Stats=((Stat=EWUS_Damage0, Scale=1.3f), (Stat=EWUS_Weight, Add=2)))
-
-	SelfDamageReductionValue=0.25f
-
-	DetonateCameraAnim=CameraAnim'WEP_1P_Seal_Squeal_ANIM.Shoot_MB500'
-	DetonateCameraAnimPlayRate=2.0f
-	DetonateCameraAnimScale=0.4f
-
 }

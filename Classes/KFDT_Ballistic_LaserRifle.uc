@@ -6,5 +6,5 @@ class KFDT_Ballistic_LaserRifle extends KFDT_Ballistic
 defaultproperties
 {
 	WeaponDef=class'KFWeapDef_LaserRifle'
-	ModifierPerkList(0)=class'KFPerk_Survivalist'
+	ModifierPerkList(0)=class'KFPerk_Commando'
 }

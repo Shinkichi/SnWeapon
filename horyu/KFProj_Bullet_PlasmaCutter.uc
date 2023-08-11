@@ -1,0 +1,8 @@
+class KFProj_Bullet_PlasmaCutter extends KFProj_Bullet_Pellet
+	hidedropdown;
+
+defaultproperties
+{
+	ProjFlightTemplate=ParticleSystem'WEP_Laser_Cutter_EMIT.FX_Laser_Rifle_Tracer_ZedTime'
+	ProjFlightTemplateZedTime=ParticleSystem'WEP_Laser_Cutter_EMIT.FX_Laser_Rifle_Tracer_ZedTime'
+}
