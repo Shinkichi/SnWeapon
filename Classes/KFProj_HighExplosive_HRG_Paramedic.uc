@@ -12,7 +12,7 @@ simulated event PreBeginPlay()
 	InstigatorPawnWarthog = KFPawn_HRG_Paramedic(Instigator);
     if (InstigatorPawnWarthog != none)
     {
-		InstigatorPawn = KFPawn(InstigatorPawnWarthog.OwnerWeapon.Instigator);
+		InstigatorPawn = KFPawn_Human(InstigatorPawnWarthog.OwnerWeapon.Instigator);
 
 		if (InstigatorPawn != none)
 		{

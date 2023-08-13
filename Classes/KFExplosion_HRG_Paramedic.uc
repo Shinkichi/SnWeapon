@@ -49,7 +49,7 @@ protected simulated function AffectsPawn(Pawn Victim, float DamageScale)
 	{
 		super.AffectsPawn(VIctim, DamageScale);
 
-		KFP.ApplyDamageOverTime(class'KFDT_Toxic_Paramedic'.default.PoisonPower, Instigator.Controller, class'KFDT_Toxic_HRG_MedicMissile');
+		KFP.ApplyDamageOverTime(class'KFDT_Toxic_Paramedic'.default.PoisonPower, Instigator.Controller, class'KFDT_Toxic_Paramedic');
 	}
 }
 
@@ -63,5 +63,5 @@ DefaultProperties
 
 	bExplodeMoreThanOnce=false
 
-	HealingValue=15//50
+	HealingValue=20//15//50
 }

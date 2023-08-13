@@ -443,7 +443,7 @@ defaultproperties
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_HighExplosive_HRG_Paramedic'
 	FireInterval(DEFAULT_FIREMODE)=+2.1//+1.4//+0.7
 	InstantHitDamage(DEFAULT_FIREMODE)=10.0
-	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Dart_Toxic'
+	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_HRG_Paramedic'
 	Spread(DEFAULT_FIREMODE)=0.0
 	FireOffset=(X=30,Y=4.5,Z=-4)
 

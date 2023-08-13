@@ -583,7 +583,7 @@ simulated state Combat
 
                 // Visible by local player or team
 	            /*bIsSpotted = (EnemyTarget.bIsCloakingSpottedByLP || EnemyTarget.bIsCloakingSpottedByTeam);*/
-	           bIsSpotted = (EnemyTarget.bIsCloaking);
+	            bIsSpotted = (EnemyTarget.bIsCloaking);
 
                /** Search for new enemies if current is dead, cloaked or too far, or something between the drone that's world geometry */
                 if (!EnemyTarget.IsAliveAndWell() || (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax)
@@ -594,7 +594,6 @@ simulated state Combat
                     EnemyTarget = none;
                     CheckForTargets();
 
-                    //if (EnemyTarget == none)
                     if ((EnemyTarget == none) || (EnemyTarget.Health <= 0) || (EnemyTarget.Health >= EnemyTarget.HealthMax))
                     {
                         SetTurretState(ETS_TargetSearch);
@@ -604,8 +603,7 @@ simulated state Combat
             }
         }
 
-        //if (EnemyTarget != none)
-        if ((EnemyTarget != none) || (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax))
+        if (EnemyTarget != none)
         {
             DesiredRotationRot = rotator(Normal(EnemyTarget.Mesh.GetBoneLocation('Spine1') - MuzzleLoc));
             DesiredRotationRot.Roll  = 0;
@@ -885,8 +883,7 @@ function CheckForTargets()
         }
     }
 
-    //if (EnemyTarget != none)
-    if ((EnemyTarget != none) || (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax))
+    if (EnemyTarget != none)
     {
         SetTurretState(ETS_Combat);
     }
