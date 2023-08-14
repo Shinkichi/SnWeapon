@@ -586,7 +586,7 @@ simulated state Combat
 	            bIsSpotted = (EnemyTarget.bIsCloaking);
 
                /** Search for new enemies if current is dead, cloaked or too far, or something between the drone that's world geometry */
-                if (!EnemyTarget.IsAliveAndWell() || (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax)
+                if (/*!EnemyTarget.IsAliveAndWell() ||*/ (EnemyTarget.Health > 0) || (EnemyTarget.Health < EnemyTarget.HealthMax)
                     || (EnemyTarget.bIsCloaking && bIsSpotted == false)
                     || VSizeSq(EnemyTarget.Location - Location) > EffectiveRadius * EffectiveRadius
                     || (HitActor != none && HitActor.bWorldGeometry && KFFracturedMeshGlass(HitActor) == None))
@@ -838,6 +838,7 @@ function CheckForTargets()
 
     local bool bIsSpotted;
 
+
     if (EnemyTarget != none)
     {
         CurrentDistance = VSizeSq(Location - EnemyTarget.Location);
@@ -846,7 +847,7 @@ function CheckForTargets()
     {
         CurrentDistance = 9999.f;
     }
-
+	
     TurretWeapon.GetMuzzleLocAndRot(MuzzleLoc, MuzzleRot);
     
     foreach CollidingActors(class'KFPawn_Human', CurrentTarget, EffectiveRadius, Location, true,, HitInfo)
@@ -854,9 +855,10 @@ function CheckForTargets()
         // Visible by local player or team
 	    /*bIsSpotted = (CurrentTarget.bIsCloakingSpottedByLP || CurrentTarget.bIsCloakingSpottedByTeam);*/
 	    bIsSpotted = (CurrentTarget.bIsCloaking);
-
-        if (!CurrentTarget.IsAliveAndWell()
-            || (CurrentTarget.bIsCloaking && bIsSpotted == false))
+	
+        /*if (!CurrentTarget.IsAliveAndWell()
+            || (CurrentTarget.bIsCloaking && bIsSpotted == false))*/
+        if (CurrentTarget.bIsCloaking && bIsSpotted == false)
         {
             continue;
         }
@@ -871,7 +873,7 @@ function CheckForTargets()
 
         Distance = VSizeSq(Location - CurrentTarget.Location);
 
-        if (EnemyTarget == none)
+        if (EnemyTarget == None)
         {
             EnemyTarget = CurrentTarget;
             CurrentDistance = Distance;
@@ -881,8 +883,7 @@ function CheckForTargets()
             EnemyTarget = CurrentTarget;
             CurrentDistance = Distance;
         }
-    }
-
+       }
     if (EnemyTarget != none)
     {
         SetTurretState(ETS_Combat);
@@ -933,7 +934,7 @@ simulated function CheckEnemiesWithinExplosionRadius()
 
     foreach CollidingActors(class'KFPawn_Human', KFPM, ExplosiveRadius, CheckExplosionLocation, true,,)
     {
-        if(KFPM != none && KFPM.IsAliveAndWell())
+        if(KFPM != none /*&& KFPM.IsAliveAndWell()*/)
         {
             SetTurretState(ETS_Detonate);
             return;
