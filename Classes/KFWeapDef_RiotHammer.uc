@@ -3,22 +3,22 @@ class KFWeapDef_RiotHammer extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "Riot Hammer";
+    return "Riothammer";
 }
 
 static function string GetItemCategory()
 {
-	return "Riot Hammer";
+	return "Riothammer";
 }
 
 static function string GetItemDescription()
 {
-    return "This is Riot Hammer!!";
+    return "This is Riothammer!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "Riot Hammer";
+	return "Riothammer";
 }
 
 DefaultProperties

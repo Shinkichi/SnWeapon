@@ -1,29 +1,5 @@
 class KFWeap_Rifle_MaserGun extends KFWeap_ScopedBase;
-
-//Props related to charging the weapon
-var float MaxChargeTime;
-var float ValueIncreaseTime;
-var float DmgIncreasePerCharge;
-var float AOEIncreasePerCharge;
-var float IncapIncreasePerCharge;
-var int AmmoIncreasePerCharge;
-
-var transient float ChargeTime;
-var transient float ConsumeAmmoTime;
-var transient float MaxChargeLevel;
-
-var ParticleSystem ChargingEffect;
-var ParticleSystem ChargedEffect;
-
-var transient ParticleSystemComponent ChargingPSC;
-var transient bool bIsFullyCharged;
-
-var const WeaponFireSndInfo FullyChargedSound;
-
-var float SelfDamageReductionValue;
-
-var float FullChargedTimerInterval;
-
+/*
 var ScriptedTexture CanvasTexture;
 
 /** Current length of the square scope texture. This is checked against before modifying the
@@ -215,6 +191,89 @@ simulated event Destroyed()
 	super.Destroyed();
 }
 
+/**
+ * Performs an 'Instant Hit' shot.
+ * Network: Local Player and Server
+ * Overriden to support the aim targeting of the railgun
+ */
+simulated function InstantFireClient()
+{
+	local vector			StartTrace, EndTrace;
+	local rotator			AimRot;
+	local Array<ImpactInfo>	ImpactList;
+	local int				Idx;
+	local ImpactInfo		RealImpact;
+	local float				CurPenetrationValue;
+	local vector			AimLocation;
+
+	// see Controller AimHelpDot() / AimingHelp()
+	bInstantHit = true;
+
+	// define range to use for CalcWeaponFire()
+	AimLocation = GetInstantFireAimLocation();
+	StartTrace = GetSafeStartTraceLocation();
+	if (!IsZero(AimLocation))
+	{
+		AimRot = rotator(Normal(AimLocation - StartTrace));
+    	EndTrace = StartTrace + vector(AimRot) * GetTraceRange();
+	}
+	else
+	{
+    	AimRot = GetAdjustedAim(StartTrace);
+    	EndTrace = StartTrace + vector(AimRot) * GetTraceRange();
+	}
+
+	bInstantHit = false;
+
+    // Initialize penetration power
+    PenetrationPowerRemaining = GetInitialPenetrationPower(CurrentFireMode);
+    CurPenetrationValue = PenetrationPowerRemaining;
+
+	// Perform shot
+	RealImpact = CalcWeaponFire(StartTrace, EndTrace, ImpactList);
+
+	// Set flash location to trigger client side effects.  Bypass Weapon.SetFlashLocation since
+	// that function is not marked as simulated and we want instant client feedback.
+	// ProjectileFire/IncrementFlashCount has the right idea:
+	//	1) Call IncrementFlashCount on Server & Local
+	//	2) Replicate FlashCount if ( !bNetOwner )
+	//	3) Call WeaponFired() once on local player
+	if( Instigator != None )
+	{
+		// If we have penetration, set the hitlocation to the last thing we hit
+        if( ImpactList.Length > 0 )
+		{
+            Instigator.SetFlashLocation( Self, CurrentFireMode, ImpactList[ImpactList.Length - 1].HitLocation );
+        }
+        else
+        {
+            Instigator.SetFlashLocation( Self, CurrentFireMode, RealImpact.HitLocation );
+        }
+	}
+
+	// local player only for clientside hit detection
+	if ( Instigator != None && Instigator.IsLocallyControlled() )
+	{
+		// allow weapon to add extra bullet impacts (useful for shotguns)
+		InstantFireClient_AddImpacts(StartTrace, AimRot, ImpactList);
+
+		for (Idx = 0; Idx < ImpactList.Length; Idx++)
+		{
+			ProcessInstantHitEx(CurrentFireMode, ImpactList[Idx],, CurPenetrationValue, Idx);
+		}
+
+		if ( Instigator.Role < ROLE_Authority )
+		{
+            SendClientImpactList(CurrentFireMode, ImpactList);
+		}
+	}
+}
+
+simulated function vector GetInstantFireAimLocation()
+{
+	return TargetingComp.LockedAimLocation[0];
+}
+
 /*********************************************************************************************
  * @name Targeting HUD
  **********************************************************************************************/
@@ -393,432 +452,12 @@ simulated state WeaponAbortEquip
 		super.BeginState(PreviousStateName);
 		StopAmbientSound();
 	}
-}
-
-static simulated function float CalculateTraderWeaponStatDamage()
-{
-	local float CalculatedDamage;
-	local class<KFDamageType> DamageType;
-	local GameExplosion ExplosionInstance;
-
-	ExplosionInstance = class<KFProjectile>(default.WeaponProjectiles[DEFAULT_FIREMODE]).default.ExplosionTemplate;
-
-	CalculatedDamage = default.InstantHitDamage[DEFAULT_FIREMODE] + ExplosionInstance.Damage;
-
-	DamageType = class<KFDamageType>(ExplosionInstance.MyDamageType);
-	if (DamageType != none && DamageType.default.DoT_Type != DOT_None)
-	{
-		CalculatedDamage += (DamageType.default.DoT_Duration / DamageType.default.DoT_Interval) * (CalculatedDamage * DamageType.default.DoT_DamageScale);
-	}
-
-	return CalculatedDamage;
-}
-
-
-/**
-* @see Weapon::ConsumeAmmo
-*/
-simulated function ConsumeAmmo(byte FireModeNum)
-{
-    local KFPerk InstigatorPerk;
-
-`if(`notdefined(ShippingPC))
-    if (bInfiniteAmmo)
-    {
-        return;
-    }
-`endif
-
-    InstigatorPerk = GetPerk();
-    if (InstigatorPerk != none && InstigatorPerk.GetIsUberAmmoActive(self)) //check for pyro maniac
-    {
-        return;
-    }
-
-    // If AmmoCount is being replicated, don't allow the client to modify it here
-    if (Role == ROLE_Authority || bAllowClientAmmoTracking)
-    {
-		super.ConsumeAmmo(FireModeNum);
-    }
-}
-
-/*simulated function StartFire(byte FiremodeNum)
-{
-	if (IsTimerActive('RefireCheckTimer'))
-	{
-		return;
-	}
-
-	super.StartFire(FiremodeNum);
 }*/
-
-simulated function OnStartFire()
-{
-	local KFPawn PawnInst;
-	PawnInst = KFPawn(Instigator);
-
-	if (PawnInst != none)
-	{
-		PawnInst.OnStartFire();
-	}
-}
-
-
-/*simulated function FireAmmunition()
-{
-	// Let the accuracy tracking system know that we fired
-	HandleWeaponShotTaken(CurrentFireMode);
-
-	// Handle the different fire types
-	switch (WeaponFireTypes[CurrentFireMode])
-	{
-	case EWFT_InstantHit:
-		// Launch a projectile if we are in zed time, and this weapon has a projectile to launch for this mode
-		if (`IsInZedTime(self) && WeaponProjectiles[CurrentFireMode] != none )
-		{
-			ProjectileFire();
-		}
-		else
-		{
-			InstantFireClient();
-		}
-		break;
-
-	case EWFT_Projectile:
-		ProjectileFire();
-		break;
-
-	case EWFT_Custom:
-		CustomFire();
-		break;
-	}
-
-	// If we're firing without charging, still consume one ammo
-	if (GetChargeLevel() < 1)
-	{
-		ConsumeAmmo(CurrentFireMode);
-	}
-
-	NotifyWeaponFired(CurrentFireMode);
-
-	// Play fire effects now (don't wait for WeaponFired to replicate)
-	PlayFireEffects(CurrentFireMode, vect(0, 0, 0));
-}*/
-
-simulated state HuskCannonCharge extends WeaponFiring
-{
-    //For minimal code purposes, I'll directly call global.FireAmmunition after charging is released
-    simulated function FireAmmunition()
-    {}
-
-    //Store start fire time so we don't have to timer this
-    simulated event BeginState(Name PreviousStateName)
-    {
-        super.BeginState(PreviousStateName);
-
-		ChargeTime = 0;
-		ConsumeAmmoTime = 0;
-		MaxChargeLevel = int(MaxChargeTime / ValueIncreaseTime);
-
-		if (ChargingPSC == none)
-		{
-			ChargingPSC = new(self) class'ParticleSystemComponent';
-
-			if(MySkelMesh != none)
-			{
-				MySkelMesh.AttachComponentToSocket(ChargingPSC, 'MuzzleFlash');
-			}
-			else
-			{
-				AttachComponent(ChargingPSC);
-			}
-		}
-		else
-		{
-			ChargingPSC.ActivateSystem();
-		}
-
-		bIsFullyCharged = false;
-
-		global.OnStartFire();
-
-		if(ChargingPSC != none)
-		{
-			ChargingPSC.SetTemplate(ChargingEffect);
-		}
-    }
-
-	simulated function bool ShouldRefire()
-	{
-		// ignore how much ammo is left (super/global counts ammo)
-		return StillFiring(CurrentFireMode);
-	}
-
-    simulated event Tick(float DeltaTime)
-    {
-        local float ChargeRTPC;
-
-		global.Tick(DeltaTime);
-
-		// Don't charge unless we're holding down the button
-		if (PendingFire(CurrentFireMode))
-		{
-			ConsumeAmmoTime += DeltaTime;
-		}
-
-		if (bIsFullyCharged)
-		{
-			if (ConsumeAmmoTime >= FullChargedTimerInterval)
-			{
-				//ConsumeAmmo(DEFAULT_FIREMODE);
-				ConsumeAmmoTime -= FullChargedTimerInterval;
-			}
-
-			return;
-		}
-
-		// Don't charge unless we're holding down the button
-		if (PendingFire(CurrentFireMode))
-		{
-			ChargeTime += DeltaTime;
-		}
-
-		ChargeRTPC = FMin(ChargeTime / MaxChargeTime, 1.f);
-        KFPawn(Instigator).SetWeaponComponentRTPCValue("Weapon_Charge", ChargeRTPC); //For looping component
-        Instigator.SetRTPCValue('Weapon_Charge', ChargeRTPC); //For one-shot sounds
-
-		if (ConsumeAmmoTime >= ValueIncreaseTime)
-		{
-			ConsumeAmmo(DEFAULT_FIREMODE);
-			ConsumeAmmoTime -= ValueIncreaseTime;
-		}
-
-		if (ChargeTime >= MaxChargeTime || !HasAmmo(DEFAULT_FIREMODE))
-		{
-			bIsFullyCharged = true;
-			ChargingPSC.SetTemplate(ChargedEffect);
-			KFPawn(Instigator).SetWeaponAmbientSound(FullyChargedSound.DefaultCue, FullyChargedSound.FirstPersonCue);
-		}
-    }
-
-    //Now that we're done charging, directly call FireAmmunition. This will handle the actual projectile fire and scaling.
-    simulated event EndState(Name NextStateName)
-    {
-		ClearZedTimeResist();
-        ClearPendingFire(CurrentFireMode);
-		ClearTimer(nameof(RefireCheckTimer));
-
-		KFPawn(Instigator).bHasStartedFire = false;
-		KFPawn(Instigator).bNetDirty = true;
-
-		if (ChargingPSC != none)
-		{
-			ChargingPSC.DeactivateSystem();
-		}
-
-		KFPawn(Instigator).SetWeaponAmbientSound(none);
-    }
-
-	simulated function HandleFinishedFiring()
-	{
-		global.FireAmmunition();
-
-		if (bPlayingLoopingFireAnim)
-		{
-			StopLoopingFireEffects(CurrentFireMode);
-		}
-
-		if (MuzzleFlash != none)
-		{
-			SetTimer(MuzzleFlash.MuzzleFlash.Duration, false, 'Timer_StopFireEffects');
-		}
-		else
-		{
-			SetTimer(0.3f, false, 'Timer_StopFireEffects');
-		}
-
-		NotifyWeaponFinishedFiring(CurrentFireMode);
-
-		super.HandleFinishedFiring();
-	}
-}
-
-// Placing the actual Weapon Firing end state here since we need it to happen at the end of the actual firing loop.
-simulated function Timer_StopFireEffects()
-{
-	// Simulate weapon firing effects on the local client
-	if (WorldInfo.NetMode == NM_Client)
-	{
-		Instigator.WeaponStoppedFiring(self, false);
-	}
-
-	ClearFlashCount();
-	ClearFlashLocation();
-}
-
-/*simulated function CauseMuzzleFlash(byte FireModeNum)
-{
-	if (MuzzleFlash == None)
-	{
-		AttachMuzzleFlash();
-	}
-
-	super.CauseMuzzleFlash(FireModeNum);
-}*/
-
-simulated function int GetChargeLevel()
-{
-	return Min(ChargeTime / ValueIncreaseTime, MaxChargeLevel);
-}
-
-// Should generally match up with KFWeapAttach_HuskCannon::GetChargeFXLevel
-/*simulated function int GetChargeFXLevel()
-{
-	local int ChargeLevel;
-
-	ChargeLevel = GetChargeLevel();
-	if (ChargeLevel < 1)
-	{
-		return 1;
-	}
-	else if (ChargeLevel < MaxChargeLevel)
-	{
-		return 2;
-	}
-	else
-	{
-		return 3;
-	}
-}*/
-
-function AdjustDamage(out int InDamage, class<DamageType> DamageType, Actor DamageCauser)
-{
-	super.AdjustDamage(InDamage, DamageType, DamageCauser);
-
-	if (Instigator != none && DamageCauser != none && DamageCauser.Instigator == Instigator ) //self
-	{
-		InDamage *= SelfDamageReductionValue;
-	}
-}
-
-// increase the instant hit damage based on the charge level
-simulated function int GetModifiedDamage(byte FireModeNum, optional vector RayDir)
-{
-	local int ModifiedDamage;
-
-	ModifiedDamage = super.GetModifiedDamage(FireModeNum, RayDir);
-	if (FireModeNum == DEFAULT_FIREMODE)
-	{
-		ModifiedDamage = ModifiedDamage * (1.f + DmgIncreasePerCharge * GetChargeLevel());
-	}
-
-	return ModifiedDamage;
-}
-
-/**
- * Performs an 'Instant Hit' shot.
- * Network: Local Player and Server
- * Overriden to support the aim targeting of the railgun
- */
-simulated function InstantFireClient()
-{
-	local vector			StartTrace, EndTrace;
-	local rotator			AimRot;
-	local Array<ImpactInfo>	ImpactList;
-	local int				Idx;
-	local ImpactInfo		RealImpact;
-	local float				CurPenetrationValue;
-	local vector			AimLocation;
-
-	// see Controller AimHelpDot() / AimingHelp()
-	bInstantHit = true;
-
-	// define range to use for CalcWeaponFire()
-	AimLocation = GetInstantFireAimLocation();
-	StartTrace = GetSafeStartTraceLocation();
-	if (!IsZero(AimLocation))
-	{
-		AimRot = rotator(Normal(AimLocation - StartTrace));
-    	EndTrace = StartTrace + vector(AimRot) * GetTraceRange();
-	}
-	else
-	{
-    	AimRot = GetAdjustedAim(StartTrace);
-    	EndTrace = StartTrace + vector(AimRot) * GetTraceRange();
-	}
-
-	bInstantHit = false;
-
-    // Initialize penetration power
-    PenetrationPowerRemaining = GetInitialPenetrationPower(CurrentFireMode);
-    CurPenetrationValue = PenetrationPowerRemaining;
-
-	// Perform shot
-	RealImpact = CalcWeaponFire(StartTrace, EndTrace, ImpactList);
-
-	// Set flash location to trigger client side effects.  Bypass Weapon.SetFlashLocation since
-	// that function is not marked as simulated and we want instant client feedback.
-	// ProjectileFire/IncrementFlashCount has the right idea:
-	//	1) Call IncrementFlashCount on Server & Local
-	//	2) Replicate FlashCount if ( !bNetOwner )
-	//	3) Call WeaponFired() once on local player
-	if( Instigator != None )
-	{
-		// If we have penetration, set the hitlocation to the last thing we hit
-        if( ImpactList.Length > 0 )
-		{
-            Instigator.SetFlashLocation( Self, CurrentFireMode, ImpactList[ImpactList.Length - 1].HitLocation );
-        }
-        else
-        {
-            Instigator.SetFlashLocation( Self, CurrentFireMode, RealImpact.HitLocation );
-        }
-	}
-
-	// local player only for clientside hit detection
-	if ( Instigator != None && Instigator.IsLocallyControlled() )
-	{
-		// allow weapon to add extra bullet impacts (useful for shotguns)
-		InstantFireClient_AddImpacts(StartTrace, AimRot, ImpactList);
-
-		for (Idx = 0; Idx < ImpactList.Length; Idx++)
-		{
-			ProcessInstantHitEx(CurrentFireMode, ImpactList[Idx],, CurPenetrationValue, Idx);
-		}
-
-		if ( Instigator.Role < ROLE_Authority )
-		{
-            SendClientImpactList(CurrentFireMode, ImpactList);
-		}
-	}
-}
-
-simulated function vector GetInstantFireAimLocation()
-{
-	return TargetingComp.LockedAimLocation[0];
-}
-
-/**
- * See Pawn.ProcessInstantHit
- * @param DamageReduction: Custom KF parameter to handle penetration damage reduction
- */
-simulated function ProcessInstantHitEx(byte FiringMode, ImpactInfo Impact, optional int NumHits, optional out float out_PenetrationVal, optional int ImpactNum )
-{
-    local KFPerk InstigatorPerk;
-
-    InstigatorPerk = GetPerk();
-    if( InstigatorPerk != none )
-    {
-        InstigatorPerk.UpdatePerkHeadShots( Impact, InstantHitDamageTypes[FiringMode], ImpactNum );
-    }
-
-    super.ProcessInstantHitEx( FiringMode, Impact, NumHits, out_PenetrationVal, ImpactNum );
-}
 
 defaultproperties
 {
 	// Inventory / Grouping
-	InventorySize=9 //10
+	InventorySize=7//9 //10
 	GroupPriority=100
 	WeaponSelectTexture=Texture2D'WEP_UI_RailGun_TEX.UI_WeaponSelect_Railgun'
    	AssociatedPerkClasses(0)=class'KFPerk_Firebug'
@@ -852,12 +491,13 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=1
-	SpareAmmoCapacity[0]=32 //20
-	InitialSpareMags[0]=6
+	SpareAmmoCapacity[0]=39//32 //20
+	InitialSpareMags[0]=12//6
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
 	AmmoPickupScale[0]=3.0
-
+	bNoMagazine=true
+	
 	// Zooming/Position
 	PlayerViewOffset=(X=3.0,Y=7,Z=-2)
 	IronSightPosition=(X=-0.25,Y=0,Z=0) // any further back along X and the scope clips through the camera during firing
@@ -887,13 +527,14 @@ defaultproperties
 	HippedRecoilModifier=2.33333
 
 	// DEFAULT_FIREMODE
-	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'UI_SecondaryAmmo_TEX.UI_FireModeSelect_AutoTarget'
-	FiringStatesArray(DEFAULT_FIREMODE)=HuskCannonCharge//WeaponSingleFiring
+
+	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'UI_SecondaryAmmo_TEX.UI_FireModeSelect_ManualTarget'
+	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_MaserGun'
-	InstantHitDamage(DEFAULT_FIREMODE)=70//280  //375
+	InstantHitDamage(DEFAULT_FIREMODE)=200//280  //375
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_MaserGun'
-	FireInterval(DEFAULT_FIREMODE)=0.1 //0.4
+	FireInterval(DEFAULT_FIREMODE)=0.25//0.1 //0.4
 	PenetrationPower(DEFAULT_FIREMODE)=10.0
 	Spread(DEFAULT_FIREMODE)=0.005
 	FireOffset=(X=30,Y=3.0,Z=-2.5)
@@ -904,13 +545,7 @@ defaultproperties
 	// ALT_FIREMODE
 	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'UI_SecondaryAmmo_TEX.UI_FireModeSelect_ManualTarget'
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
-	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_InstantHit
-	WeaponProjectiles(ALTFIRE_FIREMODE)=none
-	InstantHitDamage(ALTFIRE_FIREMODE)=560 //750
-	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_MaserGun'
-	FireInterval(ALTFIRE_FIREMODE)=0.1 //0.4
-	PenetrationPower(ALTFIRE_FIREMODE)=10.0
-	Spread(ALTFIRE_FIREMODE)=0.005
+	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_None
 
 
 	// BASH_FIREMODE
@@ -930,7 +565,7 @@ defaultproperties
 	// Custom animations
 	FireSightedAnims=(Shoot_Iron, Shoot_Iron2, Shoot_Iron3)
     BonesToLockOnEmpty=(RW_TopLeft_RadShield1,RW_TopRight_RadShield1,RW_TopLeft_RadShield2,RW_TopRight_RadShield2,RW_TopLeft_RadShield3,RW_TopRight_RadShield3,RW_TopLeft_RadShield4,RW_TopRight_RadShield4,RW_TopLeft_RadShield5,RW_TopRight_RadShield5,RW_TopLeft_RadShield6,RW_TopRight_RadShield6,RW_BottomLeft_RadShield2,RW_BottomRight_RadShield2,RW_BottomLeft_RadShield3,RW_BottomRight_RadShield3,RW_BottomLeft_RadShield4,RW_BottomRight_RadShield4,RW_BottomLeft_RadShield5,RW_BottomRight_RadShield5,RW_BottomLeft_RadShield6,RW_BottomRight_RadShield6,RW_BottomLeft_RadShield1,RW_BottomRight_RadShield1,RW_Bullets1,RW_AcceleratorMagnetrons,RW_Bolt)
-
+/*
     MaxScopeScreenDot=0.2
 
 	//Ambient Sounds
@@ -945,7 +580,7 @@ defaultproperties
     RedIconColor=(R=1.f, G=0.f, B=0.f)
     YellowIconColor=(R=1.f, G=1.f, B=0.f)
     BlueIconColor=(R=0.25, G=0.6f, B=1.f)
-
+*/
 	WeaponFireWaveForm=ForceFeedbackWaveform'FX_ForceFeedback_ARCH.Gunfire.Heavy_Recoil_SingleShot'
 
 	// Weapon Upgrade stat boosts

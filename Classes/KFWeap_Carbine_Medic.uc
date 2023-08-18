@@ -35,7 +35,8 @@ defaultproperties
 	FirstPersonMeshName="WEP_1P_Medic_Shotgun_MESH.Wep_1stP_Medic_Shotgun_Rig"
 	FirstPersonAnimSetNames(0)="WEP_1P_Medic_Shotgun_ANIM.WEP_1P_Medic_Shotgun_ANIM"
 	PickupMeshName="wep_3p_medic_shotgun_mesh.Wep_Medic_Shotgun_Pickup"
-	AttachmentArchetypeName="SnWeapon_Packages.Wep_Medic_Carbine_3P"
+	//AttachmentArchetypeName="SnWeapon_Packages.Wep_Medic_Carbine_3P"
+	AttachmentArchetypeName="WEP_Medic_Shotgun_ARCH.Wep_Medic_Shotgun_3P"
 	MuzzleFlashTemplateName="WEP_Medic_Assault_ARCH.Wep_Medic_Assault_MuzzleFlash"
 
 	HealingDartDamageType=class'KFDT_Dart_Healing'
@@ -53,14 +54,14 @@ defaultproperties
 	// DEFAULT_FIREMODE
 	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletSingle'
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFiring
-	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
-	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_AssaultRifle'
-	InstantHitDamage(DEFAULT_FIREMODE)=75.0
+	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
+	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_Pellet'
+	InstantHitDamage(DEFAULT_FIREMODE)=100//150.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Carbine_Medic'
-	PenetrationPower(DEFAULT_FIREMODE)=2.0
+	PenetrationPower(DEFAULT_FIREMODE)=4.0//2.0
 	FireInterval(DEFAULT_FIREMODE)=0.2 //0.2  300 RPM
 	FireOffset=(X=30,Y=3,Z=-3)
-	Spread(DEFAULT_FIREMODE)=0.006//0.07
+	Spread(DEFAULT_FIREMODE) = 0.0085//0.006//0.07
 	NumPellets(DEFAULT_FIREMODE)=1
 
 	// ALTFIRE_FIREMODE
@@ -75,7 +76,7 @@ defaultproperties
 	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_Carbine_Medic'
 
 	// Fire Effects
-    WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_ChiappaRhinos.Play_WEP_ChiappaRhinos_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_ChiappaRhinos.Play_WEP_ChiappaRhinos_Fire_1P')
+	WeaponFireSnd(DEFAULT_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_MedicShotgun.Play_SA_MedicShotgun_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_SA_MedicShotgun.Play_SA_MedicShotgun_Fire_1P')
     WeaponFireSnd(ALTFIRE_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_SA_MedicShotgun.Play_SA_MedicShotgun_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_SA_MedicShotgun.Play_SA_MedicShotgun_Fire_1P')
 
 	WeaponDryFireSnd(DEFAULT_FIREMODE)=AkEvent'WW_WEP_SA_MedicShotgun.Play_SA_MedicShotgun_Handling_DryFire'
@@ -87,7 +88,7 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=10
-	SpareAmmoCapacity[0]=90
+	SpareAmmoCapacity[0]=140//90
 	InitialSpareMags[0]=3
 	bCanBeReloaded=true
 	bReloadFromMagazine=true

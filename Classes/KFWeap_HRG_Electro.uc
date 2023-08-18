@@ -49,8 +49,9 @@ defaultproperties
 	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_HRG_Electro'
 
 	AssociatedPerkClasses.Empty()
-	AssociatedPerkClasses(0)=class'KFPerk_Gunslinger'
-	AssociatedPerkClasses(1)=class'KFPerk_Support'
+	AssociatedPerkClasses(0)=class'KFPerk_Survivalist'
+	//AssociatedPerkClasses(0)=class'KFPerk_Gunslinger'
+	//AssociatedPerkClasses(1)=class'KFPerk_Support'
 
 	// Recoil
 	RecoilBlendOutRatio=0.35

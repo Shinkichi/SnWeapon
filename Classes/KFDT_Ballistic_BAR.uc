@@ -36,5 +36,5 @@ defaultproperties
 
 	WeaponDef=class'KFWeapDef_BAR'
 	ModifierPerkList(0)=class'KFPerk_Commando'
-	ModifierPerkList(1)=class'KFPerk_Sharpshooter'
+	//ModifierPerkList(1)=class'KFPerk_Sharpshooter'
 }

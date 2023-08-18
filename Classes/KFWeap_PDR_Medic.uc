@@ -51,9 +51,9 @@ defaultproperties
 	HealingDartWaveForm=ForceFeedbackWaveform'FX_ForceFeedback_ARCH.Gunfire.Default_Recoil'
 
 	// Ammo
-	MagazineCapacity[0]=24//30//40
-	SpareAmmoCapacity[0]=216//210//480
-	InitialSpareMags[0]=4//3//5
+	MagazineCapacity[0]=30//40
+	SpareAmmoCapacity[0]=210//480
+	InitialSpareMags[0]=3//5
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
 

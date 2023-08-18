@@ -141,26 +141,6 @@ simulated function CauseMuzzleFlash(byte FireModeNum)
 	}
 }
 
-/*simulated function ModifyMagSizeAndNumber(out byte InMagazineCapacity, optional int FireMode = DEFAULT_FIREMODE, optional int UpgradeIndex = INDEX_NONE, optional KFPerk CurrentPerk)
-{
-	if (FireMode == BASH_FIREMODE)
-	{
-		return;
-	}
-
-	InMagazineCapacity = GetUpgradedMagCapacity(FireMode, UpgradeIndex);
-
-	if (CurrentPerk == none)
-	{
-		CurrentPerk = GetPerk();
-	}
-
-	if (CurrentPerk != none)
-	{
-		CurrentPerk.ModifyMagSizeAndNumber(self, InMagazineCapacity, AssociatedPerkClasses, FireMode == ALTFIRE_FIREMODE, Class.Name);
-	}
-}*/
-
 defaultproperties
 {
 	// Inventory

@@ -7,7 +7,7 @@ defaultproperties
 	GroupPriority=75
 	WeaponSelectTexture=Texture2D'WEP_UI_M14EBR_TEX.UI_WeaponSelect_SM14-EBR'
    	AssociatedPerkClasses(0)=class'KFPerk_Commando'
-   	AssociatedPerkClasses(1)=class'KFPerk_Sharpshooter'
+   	//AssociatedPerkClasses(1)=class'KFPerk_Sharpshooter'
    	
  	// 2D scene capture
 	Begin Object Name=SceneCapture2DComponent0
@@ -85,15 +85,9 @@ defaultproperties
 	FireOffset=(X=30,Y=3.0,Z=-2.5)
 
 	// ALT_FIREMODE
-	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletSingle'
-	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
-	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_InstantHit
-	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_M14EBR'
-	InstantHitDamage(ALTFIRE_FIREMODE)=160//80.0 //90
-	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_BAR'
-	FireInterval(ALTFIRE_FIREMODE)=0.225 // 265 RPM
-	PenetrationPower(ALTFIRE_FIREMODE)=1.5
-	Spread(ALTFIRE_FIREMODE)=0.007
+	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletAuto'
+	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponFiring
+	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_None
 
 
 	// BASH_FIREMODE

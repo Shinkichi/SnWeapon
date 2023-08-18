@@ -191,7 +191,7 @@ defaultproperties
 	FirstPersonMeshName="WEP_1P_Stoner63A_MESH.Wep_1stP_Stoner63A_Rig"
 	FirstPersonAnimSetNames(0)="WEP_1P_Stoner63A_ANIM.Wep_1stP_Stoner63A_Anim"
 	PickupMeshName="WEP_3P_Stoner63A_MESH.Wep_Stoner63A_Pickup"
-	AttachmentArchetypeName="WEP_Stoner63A_ARCH.Wep_Stoner63A_3P"
+	AttachmentArchetypeName="SnWeapon_Packages.Wep_HX63A_3P"
 	MuzzleFlashTemplateName="WEP_Stoner63A_ARCH.Wep_Stoner63A_MuzzleFlash"
 
    	// Zooming/Position
@@ -241,7 +241,8 @@ defaultproperties
 	FireInterval(DEFAULT_FIREMODE)=+0.066 // 900 RPM
 	Spread(DEFAULT_FIREMODE)=0.0085
 	InstantHitDamage(DEFAULT_FIREMODE)=15.0//10.0
-	FireOffset=(X=30,Y=4.5,Z=-5)
+	//FireOffset=(X=30,Y=4.5,Z=-5)
+	FireOffset=(X=50,Y=10.0,Z=-15)
 
 	// ALT_FIREMODE
 	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletAuto'
@@ -249,7 +250,7 @@ defaultproperties
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_None
 
 	// BASH_FIREMODE
-	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_Stoner63A'
+	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_HX63A'
 	InstantHitDamage(BASH_FIREMODE)=26
 
 	// Fire Effects

@@ -124,7 +124,7 @@ defaultproperties
 	HippedRecoilModifier=1.25
 
 	AssociatedPerkClasses(0)=class'KFPerk_Support'
-	AssociatedPerkClasses(1)=class'KFPerk_Berserker'
+	//AssociatedPerkClasses(1)=class'KFPerk_Berserker'
 
 	WeaponFireWaveForm=ForceFeedbackWaveform'FX_ForceFeedback_ARCH.Gunfire.Heavy_Recoil_SingleShot'
 

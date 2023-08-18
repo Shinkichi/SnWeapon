@@ -26,7 +26,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_HRG_Nailer"
 
-	BuyPrice=1500
+	BuyPrice=1600//1500
 	AmmoPricePerMag=45//36 
     ImagePath="ui_weaponselect_tex.UI_WeaponSelect_AA12"
 

@@ -1,32 +1,29 @@
 class KFWeap_Blunt_RiotHammer extends KFWeap_MeleeBase;
 
-const ShootAnim_L = 'HardFire_L';
-const ShootAnim_R = 'HardFire_R';
-const ShootAnim_F = 'HardFire_F';
-const ShootAnim_B = 'HardFire_B';
-
-var bool bWasTimeDilated;
-
 /** Explosion actor class to spawn */
 var class<KFExplosionActor> ExplosionActorClass;
 var() KFGameExplosion ExplosionTemplate;
-/** If true, use an alternate set of explosion effects */
-var bool    bAltExploEffects;
-var KFImpactEffectInfo AltExploEffects;
+var() KFGameExplosion LightAttackExplosionTemplate;
 
+/** The actor the alt attack explosion should attach to */
 var transient Actor BlastAttachee;
+
+/** The hit location of the blast */
+var vector BlastHitLocation;
 
 /** Spawn location offset to improve cone hit detection */
 var transient float BlastSpawnOffset;
 
-/** If set, heavy attack button has been released during the attack */
-var transient bool bPulverizerFireReleased;
+/** Starting Damage radius of the alt attack explosion*/
+var float StartingDamageRadius;
+
+/** Animations that play in reaction to hitting with the alt fire attack*/
+const HardFire_L = 'HardFire_L';
+const HardFire_R = 'HardFire_R';
+const HardFire_F = 'HardFire_F';
+const HardFire_B = 'HardFire_B';
 
 var bool bFriendlyFireEnabled;
-
-var class<KFExplosionActor> NukeExplosionActorClass;
-
-var float StartingDamageRadius;
 
 replication
 {
@@ -34,21 +31,19 @@ replication
 		bFriendlyFireEnabled;
 }
 
-simulated event PreBeginPlay()
+simulated event bool HasAmmo(byte FireModeNum, optional int Amount)
 {
-	Super.PreBeginPlay();
-
-	/** Initially check whether friendly fire is on or not. */
-	if(Role == ROLE_Authority && KFGameInfo(WorldInfo.Game).FriendlyFireScale != 0.f)
+	// Default fire mode either has ammo to trigger the heal or needs to return true to still allow a basic swing
+	if (FireModeNum == DEFAULT_FIREMODE)
 	{
-		bFriendlyFireEnabled = true;
+		return true;
 	}
 
-	if (ExplosionTemplate != none)
-	{
-		StartingDamageRadius = ExplosionTemplate.DamageRadius;
-	}
+	return super.HasAmmo(FireModeNum, Amount);
 }
+
+
+
 
 /** Healing charge doesn't count as ammo for purposes of inventory management (e.g. switching) */
 simulated function bool HasAnyAmmo()
@@ -62,184 +57,26 @@ simulated function bool HasAnyAmmo()
 	return false;
 }
 
-
-simulated event bool HasAmmo(byte FireModeNum, optional int Amount)
+simulated event PreBeginPlay()
 {
-	// Default fire mode either has ammo to trigger the heal or needs to return true to still allow a basic swing
-	if (FireModeNum == DEFAULT_FIREMODE)
+	Super.PreBeginPlay();
+
+	/** Initially check whether friendly fire is on or not. */
+	if (Role == ROLE_Authority && KFGameInfo(WorldInfo.Game).FriendlyFireScale != 0.f)
 	{
-		return true;
+		bFriendlyFireEnabled = true;
 	}
 
-	return super.HasAmmo(FireModeNum, Amount);
+	if (ExplosionTemplate != none)
+	{
+		StartingDamageRadius = ExplosionTemplate.DamageRadius;
+	}
 }
 
 /** Pulverizer should be able to interrupt its reload state with any melee attack */
 simulated function bool CanOverrideMagReload(byte FireModeNum)
 {
 	return FireModeNum != RELOAD_FIREMODE;
-}
-
-/** Explosion Actor version */
-simulated function CustomFire()
-{
-	local KFExplosionActor ExploActor;
-	local vector SpawnLoc;
-	local rotator SpawnRot;
-
-	if ( Instigator.Role < ROLE_Authority )
-	{
-		return;
-	}
-
-	// On local player or server, we cache off our time dilation setting here
-	if (WorldInfo.NetMode == NM_ListenServer || WorldInfo.NetMode == NM_DedicatedServer || Instigator.Controller != None)
-	{
-		bWasTimeDilated = WorldInfo.TimeDilation < 1.f;
-	}
-
-	PrepareExplosionTemplate();
-	SetExplosionActorClass();
-
-	SpawnLoc = Instigator.GetWeaponStartTraceLocation();
-	SpawnRot = GetPulverizerAim(SpawnLoc);
-
-	// nudge backwards to give a wider code near the player
-	SpawnLoc += vector(SpawnRot) * BlastSpawnOffset;
-
-	// explode using the given template
-	ExploActor = Spawn(ExplosionActorClass, self,, SpawnLoc, SpawnRot,, true);
-	if (ExploActor != None)
-	{
-		ExploActor.InstigatorController = Instigator.Controller;
-		ExploActor.Instigator = Instigator;
-
-		// Force the actor we collided with to get hit again (when DirectionalExplosionAngleDeg is small)
-		// This is only necessary on server since GetEffectCheckRadius() will be zero on client
-		ExploActor.Attachee = BlastAttachee;
-		ExplosionTemplate.bFullDamageToAttachee = true;
-
-		// enable muzzle location sync
-		ExploActor.bReplicateInstigator = true;
-		ExploActor.SetSyncToMuzzleLocation(true);
-
-		ExploActor.Explode(ExplosionTemplate, vector(SpawnRot));
-	}
-
-	// tell remote clients that we fired, to trigger effects in third person
-	IncrementFlashCount();
-
-	if ( bDebug )
-	{
-		DrawDebugCone(SpawnLoc, vector(SpawnRot), ExplosionTemplate.DamageRadius, ExplosionTemplate.DirectionalExplosionAngleDeg * DegToRad,
-			ExplosionTemplate.DirectionalExplosionAngleDeg * DegToRad, 16, MakeColor(64,64,255,0), TRUE);
-	}
-}
-
-simulated protected function PrepareExplosionTemplate()
-{
-	local KFPlayerController KFPC;
-	local KFPerk InstigatorPerk;
-
-	ExplosionTemplate = default.ExplosionTemplate;
-	ExplosionTemplate.DamageRadius = StartingDamageRadius;
-
-	// Change the radius and damage based on the perk
-	if (Owner.Role == ROLE_Authority)
-	{
-		KFPC = KFPlayerController(Instigator.Controller);
-		if (KFPC != none)
-		{
-			InstigatorPerk = KFPC.GetPerk();
-			ExplosionTemplate.DamageRadius *= InstigatorPerk.GetAoERadiusModifier();
-		}
-	}
-
-	ExplosionActorClass = default.ExplosionActorClass;
-}
-
-simulated protected function SetExplosionActorClass()
-{
-	ExplosionActorClass = default.ExplosionActorClass;
-}
-
-
-/** Called by CustomFire when shotgun blast is fired */
-simulated function Rotator GetPulverizerAim( vector StartFireLoc )
-{
-	local Rotator R;
-
-	R = GetAdjustedAim(StartFireLoc);
-
-	// Adjust cone fire angle based on swing direction
-	switch (MeleeAttackHelper.CurrentAttackDir)
-	{
-		case DIR_Left:
-			R.Yaw += 5461;
-			break;
-		case DIR_Right:
-			R.Yaw -= 5461;
-			break;
-		case DIR_Forward:
-			R.Pitch -= 2048;
-			break;
-		case DIR_Backward:
-			R.Pitch += 2048;
-			break;
-	}
-
-	return R;
-}
-
-/** Don't play a shoot anim when FireAmmunition is called */
-simulated function name GetWeaponFireAnim(byte FireModeNum)
-{
-	// Adjust cone fire angle based on swing direction
-	switch (MeleeAttackHelper.CurrentAttackDir)
-	{
-		case DIR_Forward:
-		case DIR_ForwardLeft:
-		case DIR_ForwardRight:
-			return ShootAnim_F;
-		case DIR_Backward:
-		case DIR_BackwardLeft:
-		case DIR_BackwardRight:
-			return ShootAnim_B;
-		case DIR_Left:
-			return ShootAnim_L;
-		case DIR_Right:
-			return ShootAnim_R;
-	}
-	return '';
-}
-
-/** Called on the server alongside PulverizerFired */
-reliable server private function ServerBeginPulverizerFire(Actor HitActor, optional vector HitLocation)
-{
-	// Ignore if too far away (something went wrong!)
-	if ( VSizeSq2D(HitLocation - Instigator.Location) > Square(500) )
-	{
-		`log("ServerBeginPulverizerFire outside of range!");
-		return;
-	}
-
-	BlastAttachee = HitActor;
-	SendToFiringState(CUSTOM_FIREMODE);
-}
-
-/** Called when altfire melee attack hits a target and there is ammo left */
-simulated function BeginPulverizerFire()
-{
-	SendToFiringState(CUSTOM_FIREMODE);
-}
-
-/** Skip calling StillFiring/PendingFire to fix log warning */
-simulated function bool ShouldRefire()
-{
-	if ( CurrentFireMode == CUSTOM_FIREMODE )
-		return false;
-
-	return Super.ShouldRefire();
 }
 
 /** Override to allow for two different states associated with RELOAD_FIREMODE */
@@ -262,35 +99,108 @@ simulated function bool CanReload(optional byte FireModeNum)
 	return true;
 }
 
-/** Debugging */
-`if(`notdefined(ShippingPC))
-exec function ToggleWeaponDebug()
+/** Skip calling StillFiring/PendingFire to fix log warning */
+simulated function bool ShouldRefire()
 {
-	bDebug = !bDebug;
+	if ( CurrentFireMode == CUSTOM_FIREMODE )
+		return false;
+
+	return Super.ShouldRefire();
 }
-`endif
 
-/*********************************************************************************************
- * State MeleeHeavyAttacking
- * This is the alt-fire Melee State.
- *********************************************************************************************/
+simulated protected function PrepareExplosion()
+{
+	local KFPlayerController KFPC;
+	local KFPerk InstigatorPerk;
 
+	ExplosionTemplate = default.ExplosionTemplate;
+	ExplosionTemplate.DamageRadius = StartingDamageRadius;
+
+	// Change the radius and damage based on the perk
+	if (Owner.Role == ROLE_Authority)
+	{
+		KFPC = KFPlayerController(Instigator.Controller);
+		if (KFPC != none)
+		{
+			`Log("RADIUS BEFORE: " $ExplosionTemplate.DamageRadius);
+
+			InstigatorPerk = KFPC.GetPerk();
+			ExplosionTemplate.DamageRadius *= InstigatorPerk.GetAoERadiusModifier();
+
+			`Log("RADIUS BEFORE: " $ExplosionTemplate.DamageRadius);
+
+		}
+	}
+
+	ExplosionActorClass = default.ExplosionActorClass;
+}
+
+/** Get the hard fire anim when the alt fire attack connects */
+simulated function name GetWeaponFireAnim(byte FireModeNum)
+{
+	// Adjust cone fire angle based on swing direction
+	switch (MeleeAttackHelper.CurrentAttackDir)
+	{
+	case DIR_Forward:
+	case DIR_ForwardLeft:
+	case DIR_ForwardRight:
+		return HardFire_F;
+	case DIR_Backward:
+	case DIR_BackwardLeft:
+	case DIR_BackwardRight:
+		return HardFire_B;
+	case DIR_Left:
+		return HardFire_L;
+	case DIR_Right:
+		return HardFire_R;
+	}
+	return '';
+}
+
+simulated function SpawnExplosionFromTemplate(KFGameExplosion Template)
+{
+	local KFExplosionActor ExploActor;
+	local vector SpawnLoc;
+	local rotator SpawnRot;
+
+	SpawnLoc = BlastHitLocation;
+	SpawnRot = GetAdjustedAim(SpawnLoc);
+
+	// explode using the given template
+	ExploActor = Spawn(ExplosionActorClass, self, , SpawnLoc, SpawnRot, , true);
+	if (ExploActor != None)
+	{
+		ExploActor.InstigatorController = Instigator.Controller;
+		ExploActor.Instigator = Instigator;
+		ExplosionTemplate.bFullDamageToAttachee = true;
+
+		KFExplosionActorReplicated(ExploActor).bIgnoreInstigator = false;
+		ExploActor.bReplicateInstigator = true;
+
+		ExploActor.Explode(Template, vector(SpawnRot));
+	}
+
+	// Reset damage radius
+	ExplosionTemplate.DamageRadius = StartingDamageRadius;
+}
+
+simulated function CustomFire()
+{
+	if (Instigator.Role < ROLE_Authority)
+	{
+		return;
+	}
+
+	PrepareExplosion();
+	SpawnExplosionFromTemplate(ExplosionTemplate);
+
+	// tell remote clients that we fired, to trigger effects in third person
+	IncrementFlashCount();
+}
+
+// HEAVY ATTACK
 simulated state MeleeHeavyAttacking
 {
-	/** Reset bPulverizerFireReleased */
-	simulated event BeginState(Name PreviousStateName)
-	{
-		Super.BeginState(PreviousStateName);
-		bPulverizerFireReleased = false;
-	}
-
-	/** Set bPulverizerFireReleased to ignore NotifyMeleeCollision */
-	simulated function StopFire(byte FireModeNum)
-	{
-		Super.StopFire(FireModeNum);
-		bPulverizerFireReleased = true;
-	}
-
 	/** Network: Local Player */
 	simulated function NotifyMeleeCollision(Actor HitActor, optional vector HitLocation)
 	{
@@ -313,29 +223,52 @@ simulated state MeleeHeavyAttacking
 				return;
 			}
 
-			if ( AmmoCount[0] >= AmmoCost[CUSTOM_FIREMODE] && !IsTimerActive(nameof(BeginPulverizerFire)) )
+			if (AmmoCount[0] >= AmmoCost[CUSTOM_FIREMODE] && !IsTimerActive(nameof(BeginMedicBatExplosion)))
 			{
 				BlastAttachee = HitActor;
+				BlastHitLocation = HitLocation;
 
 				// need to delay one frame, since this is called from AnimNotify
-				SetTimer(0.001f, false, nameof(BeginPulverizerFire));
+				SetTimer(0.001f, false, nameof(BeginMedicBatExplosion));
 
-				if ( Role < ROLE_Authority )
+				if (Role < ROLE_Authority && Instigator.IsLocallyControlled())
 				{
-					if( HitActor.bTearOff && Victim != none )
+					if (!HitActor.bTearOff || Victim == none)
 					{
-						Victim.TakeRadiusDamage(Instigator.Controller, ExplosionTemplate.Damage, ExplosionTemplate.DamageRadius, ExplosionTemplate.MyDamageType,
-							ExplosionTemplate.MomentumTransferScale, Location, true, (Owner != None) ? Owner : self);
-					}
-					else
-					{
-						ServerBeginPulverizerFire(HitActor, HitLocation);
+						ServerBeginMedicBatExplosion(HitActor, HitLocation);
 					}
 				}
 			}
 		}
 	}
 }
+
+/** Called on the server */
+reliable server private function ServerBeginMedicBatExplosion(Actor HitActor, optional vector HitLocation)
+{
+	// Ignore if too far away (something went wrong!)
+	if (VSizeSq2D(HitLocation - Instigator.Location) > Square(500))
+	{
+		return;
+	}
+
+	BlastHitLocation = HitLocation;
+	BlastAttachee = HitActor;
+	SendToFiringState(CUSTOM_FIREMODE);
+}
+
+/** Called when altfire melee attack hits a target and there is ammo left */
+simulated function BeginMedicBatExplosion()
+{
+	SendToFiringState(CUSTOM_FIREMODE);
+}
+
+/*********************************************************************************************
+ * State Active
+ * A Weapon this is being held by a pawn should be in the active state.  In this state,
+ * a weapon should loop any number of idle animations, as well as check the PendingFire flags
+ * to see if a shot has been fired.
+ *********************************************************************************************/
 
 simulated state Active
 {
@@ -361,15 +294,12 @@ simulated state Active
 
 defaultproperties
 {
-	AssociatedPerkClasses(0)=class'KFPerk_Berserker'
-	AssociatedPerkClasses(1)=class'KFPerk_SWAT'
-
 	// Content
 	PackageKey="RiotHammer"
 	FirstPersonMeshName="WEP_1P_Pulverizer_MESH.Wep_1stP_Pulverizer_Rig_New"
+	AttachmentArchetypeName="WEP_Pulverizer_ARCH.Wep_Pulverizer_3P"
 	FirstPersonAnimSetNames(0)="WEP_1P_Pulverizer_ANIM.Wep_1stP_Pulverizer_Anim"
 	PickupMeshName="WEP_3P_Pulverizer_MESH.Wep_Pulverizer_Pickup"
-	AttachmentArchetypeName="WEP_Pulverizer_ARCH.Wep_Pulverizer_3P"
 	MuzzleFlashTemplateName="WEP_Pulverizer_ARCH.Wep_Pulverizer_MuzzleFlash"
 
 	Begin Object Name=MeleeHelper_0
@@ -393,36 +323,7 @@ defaultproperties
 		ChainSequence_R=(DIR_Left, DIR_ForwardRight, DIR_ForwardLeft, DIR_Right, DIR_Left)
 	End Object
 
-	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BluntMelee'
-	InstantHitDamage(DEFAULT_FIREMODE)=80
-	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Bludgeon_RiotHammer'
-
-	FireModeIconPaths(HEAVY_ATK_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BluntMelee'
-	InstantHitDamage(HEAVY_ATK_FIREMODE)=145
-	InstantHitDamageTypes(HEAVY_ATK_FIREMODE)=class'KFDT_Bludgeon_RiotHammerHeavy'
-
-	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_RiotHammerBash'
-	InstantHitDamage(BASH_FIREMODE)=20
-
-	// Trigger explosion
-	FireModeIconPaths(CUSTOM_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_ShotgunSingle'
-	FiringStatesArray(CUSTOM_FIREMODE)=WeaponSingleFiring
-	WeaponFireTypes(CUSTOM_FIREMODE)=EWFT_Custom
-	FireInterval(CUSTOM_FIREMODE)=1.0f
-	AmmoCost(CUSTOM_FIREMODE)=1
-
-	BlastSpawnOffset=-10.f
-
-	// Explosion settings.  Using archetype so that clients can serialize the content
-	// without loading the 1st person weapon content (avoid 'Begin Object')!
-	ExplosionActorClass=class'KFExplosionActorReplicated'
-	ExplosionTemplate=KFGameExplosion'SnWeapon_Packages.Wep_RiotHammer_Explosion'
-	//ExplosionTemplate=KFGameExplosion'WEP_Pulverizer_ARCH.Wep_Pulverizer_Explosion'
-	AltExploEffects = none//KFImpactEffectInfo'WEP_RPG7_ARCH.RPG7_Explosion_Concussive_Force' //Leave this alone until we want it
-
-	//NukeExplosionActorClass=class'KFExplosion_ReplicatedNuke'
-
-	// RELOAD
+	// Reload
 	FiringStatesArray(RELOAD_FIREMODE)=Reloading
 
 	// Ammo
@@ -437,18 +338,85 @@ defaultproperties
 	InventorySize=6
 	WeaponSelectTexture=Texture2D'ui_weaponselect_tex.UI_WeaponSelect_Pulverizer'
 
-	// Fire Effects
-	WeaponFireSnd(CUSTOM_FIREMODE)=(DefaultCue=AkEvent'WW_WEP_MEL_Pulverizer.Play_WEP_MEL_Pulverizer_Fire_3P', FirstPersonCue=AkEvent'WW_WEP_MEL_Pulverizer.Play_WEP_MEL_Pulverizer_Fire_1P')
+	// Default
+	// Maps to Alt Ammo
+	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BluntMelee'
+	InstantHitDamage(DEFAULT_FIREMODE)=80
+	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Bludgeon_RiotHammer'
 
-	// Block Effects
+	// Heavy Attack
+	FireModeIconPaths(HEAVY_ATK_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BluntMelee'
+	InstantHitDamage(HEAVY_ATK_FIREMODE)=145
+	InstantHitDamageTypes(HEAVY_ATK_FIREMODE)=class'KFDT_Bludgeon_RiotHammerHeavy'
+
+	// Heavy Attack Explosion
+	FireModeIconPaths(CUSTOM_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_ShotgunSingle'
+	FiringStatesArray(CUSTOM_FIREMODE)=WeaponSingleFiring
+	WeaponFireTypes(CUSTOM_FIREMODE)=EWFT_Custom
+	FireInterval(CUSTOM_FIREMODE)=1.0f
+	AmmoCost(CUSTOM_FIREMODE)=1
+
+	// Bash
+	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_RiotHammerBash'
+	InstantHitDamage(BASH_FIREMODE)=20
+
+	// Perk
+	AssociatedPerkClasses(0)=class'KFPerk_Berserker'
+	//AssociatedPerkClasses(1)=class'KFPerk_SWAT'
+
+	// Block and Parry
 	BlockSound=AkEvent'WW_WEP_Bullet_Impacts.Play_Block_MEL_Hammer'
 	ParrySound=AkEvent'WW_WEP_Bullet_Impacts.Play_Parry_Wood'
-
-	// Trader
 	ParryDamageMitigationPercent=0.40
 	BlockDamageMitigation=0.50
-
 	ParryStrength=5
+
+	// Explosion light
+	Begin Object Class=PointLightComponent Name=ExplosionPointLight
+		LightColor=(R = 0,G = 128,B = 255,A = 255)
+		Brightness=4.f
+		Radius=500.f
+		FalloffExponent=10.f
+		CastShadows=False
+		CastStaticShadows=FALSE
+		CastDynamicShadows=True
+		bEnabled=FALSE
+		LightingChannels=(Indoor = TRUE,Outdoor = TRUE,bInitialized = TRUE)
+	End Object
+
+	// Explosion
+	ExplosionActorClass = class'KFExplosionActorReplicated'
+	//ExplosionActorClass = class'KFExplosionActor'
+	Begin Object Class=KFGameExplosion Name=HeavyAttackHealingExplosion
+		Damage=125  //300
+		DamageRadius=700  //800
+		DamageFalloffExponent=2.f
+		DamageDelay=0.f
+		MyDamageType=class'KFDT_Explosive_RiotHammer'
+
+		// Damage Effects
+		KnockDownStrength=0
+		KnockDownRadius=0
+		FractureMeshRadius=200.0
+		FracturePartVel=500.0	
+		ExplosionEffects=KFImpactEffectInfo'WEP_M84_ARCH.M84_Explosion'
+		ExplosionSound=AkEvent'WW_WEP_EXP_Grenade_Frag.Play_WEP_Flashbang'
+		//MomentumTransferScale=0
+		//bIgnoreInstigator=false
+
+        // Dynamic Light
+        ExploLight=ExplosionPointLight
+        ExploLightStartFadeOutTime=0.0
+        ExploLightFadeOutTime=0.2
+
+		// Camera Shake
+		CamShake=CameraShake'FX_CameraShake_Arch.Grenades.Default_Grenade'
+		CamShakeInnerRadius=200
+		CamShakeOuterRadius=900
+		CamShakeFalloff=1.5f
+		bOrientCameraShakeTowardsEpicenter=true
+	End Object
+	ExplosionTemplate=HeavyAttackHealingExplosion
 
 	// Weapon Upgrade stat boosts
 	//WeaponUpgrades[1]=(IncrementDamage=1.05f,IncrementWeight=1)
@@ -456,4 +424,5 @@ defaultproperties
 
 	WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.1f), (Stat=EWUS_Damage1, Scale=1.1f), (Stat=EWUS_Damage2, Scale=1.1f), (Stat=EWUS_Weight, Add=1)))
 	WeaponUpgrades[2]=(Stats=((Stat=EWUS_Damage0, Scale=1.2f), (Stat=EWUS_Damage1, Scale=1.2f), (Stat=EWUS_Damage2, Scale=1.2f), (Stat=EWUS_Weight, Add=2)))
-}
+
+}}

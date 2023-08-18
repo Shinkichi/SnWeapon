@@ -1,5 +1,3 @@
-=====================================================
-
 class KFWeap_Revolver_DualBFR extends KFWeap_DualBase;
 
 defaultproperties

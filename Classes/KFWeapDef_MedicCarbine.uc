@@ -3,22 +3,22 @@ class KFWeapDef_MedicCarbine extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "HMTech-341 Carbine";
+    return "HMTech-331 Carbine";
 }
 
 static function string GetItemCategory()
 {
-	return "HMTech-341 Carbine";
+	return "HMTech-331 Carbine";
 }
 
 static function string GetItemDescription()
 {
-    return "This is HMTech-341 Carbine!!";
+    return "This is HMTech-331 Carbine!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "HMTech-341 Carbine";
+	return "HMTech-331 Carbine";
 }
 
 DefaultProperties

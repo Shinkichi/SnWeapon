@@ -112,13 +112,17 @@ defaultproperties
 	// ALT_FIREMODE
 	FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletArrow'
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
-	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
-	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bolt_JavelinGun_Alt'
-	InstantHitDamage(ALTFIRE_FIREMODE)=125
-	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_JavelinGun_Alt'
-	FireInterval(ALTFIRE_FIREMODE)=0.5//0.75
-	Spread(ALTFIRE_FIREMODE)=0
-	PenetrationPower(ALTFIRE_FIREMODE)=0
+	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_None
+	
+	//FireModeIconPaths(ALTFIRE_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletArrow'
+	//FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
+	//WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
+	//WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bolt_JavelinGun_Alt'
+	//InstantHitDamage(ALTFIRE_FIREMODE)=125
+	//InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_JavelinGun_Alt'
+	//FireInterval(ALTFIRE_FIREMODE)=0.5//0.75
+	//Spread(ALTFIRE_FIREMODE)=0
+	//PenetrationPower(ALTFIRE_FIREMODE)=0
 
 	// BASH_FIREMODE
 	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_JavelinGun'

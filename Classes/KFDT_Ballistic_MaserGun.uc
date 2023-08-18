@@ -38,8 +38,8 @@ defaultproperties
 {
 	EffectGroup=FXG_MicrowaveBlast
 	//bCanObliterate=true
-	//ObliterationHealthThreshold=-75
-	//ObliterationDamageThreshold=100
+	ObliterationHealthThreshold=-500
+	ObliterationDamageThreshold=500
 	bCanObliterate=true
 	bCanGib=true
 	GoreDamageGroup=DGT_Obliteration
@@ -48,10 +48,8 @@ defaultproperties
 	KDeathUpKick=500
 	KDeathVel=350
 
-    KnockdownPower=20
-	StunPower=50 //100
-	StumblePower=600  //400
-	GunHitPower=300   //100
+	StumblePower=400
+	GunHitPower=300
 	MeleeHitPower=100
 
 	BurnPower = 100//10

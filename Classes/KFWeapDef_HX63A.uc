@@ -3,29 +3,29 @@ class KFWeapDef_HX63A extends KFWeaponDefinition
 
 static function string GetItemName()
 {
-    return "HX63A LMG";
+    return "Grenadier 63A GMG";
 }
 
 static function string GetItemCategory()
 {
-	return "HX63A LMG";
+	return "Grenadier 63A GMG";
 }
 
 static function string GetItemDescription()
 {
-    return "This is HX63A LMG!!";
+    return "This is Grenadier 63A GMG!!";
 }
 
 static function string GetItemLocalization(string KeyName)
 {
-	return "HX63A LMG";
+	return "Grenadier 63A GMG";
 }
 
 DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_LMG_HX63A"
 
-	BuyPrice=1500
+	BuyPrice=1600//1500
 	AmmoPricePerMag=70 //70
 	ImagePath="wep_ui_stoner63a_tex.UI_WeaponSelect_Stoner"
 

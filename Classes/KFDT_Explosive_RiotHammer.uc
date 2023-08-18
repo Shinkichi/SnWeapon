@@ -27,5 +27,5 @@ DefaultProperties
 	WeaponDef=class'KFWeapDef_RiotHammer'
 
 	ModifierPerkList(0)=class'KFPerk_Berserker'
-	ModifierPerkList(1)=class'KFPerk_SWAT'
+	//ModifierPerkList(1)=class'KFPerk_SWAT'
 }

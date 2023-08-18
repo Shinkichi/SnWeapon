@@ -26,7 +26,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_Rifle_MaserGun"
 
-	BuyPrice=1500
+	BuyPrice=1600//1500
 	AmmoPricePerMag=20 //25
 	ImagePath="WEP_UI_RailGun_TEX.UI_WeaponSelect_Railgun"
 
