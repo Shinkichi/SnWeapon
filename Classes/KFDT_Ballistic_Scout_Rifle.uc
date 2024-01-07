@@ -14,5 +14,4 @@ defaultproperties
 	WeaponDef=class'KFWeapDef_Scout'
 
 	ModifierPerkList(0)=class'KFPerk_Sharpshooter'
-	//ModifierPerkList(1)=class'KFPerk_Support'
 }

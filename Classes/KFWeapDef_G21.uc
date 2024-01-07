@@ -25,7 +25,7 @@ DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_SMG_G21"
 
-	BuyPrice=1600//1500
+	BuyPrice=1400//1500
 	AmmoPricePerMag=39//24
 	ImagePath="WEP_UI_RiotShield_TEX.UI_WeaponSelect_RiotShield"
 

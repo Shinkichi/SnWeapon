@@ -552,7 +552,7 @@ defaultproperties
 	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_Electricity'
 	FiringStatesArray(DEFAULT_FIREMODE)=HuskCannonCharge
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
-	Spread(DEFAULT_FIREMODE) = 0.0085
+	Spread(DEFAULT_FIREMODE) = 0//0.0085
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_TauCannon'
 	FireInterval(DEFAULT_FIREMODE)=+0.223 //269 RPMs
 	PenetrationPower(DEFAULT_FIREMODE)=2.0
@@ -587,8 +587,7 @@ defaultproperties
 	bHasIronSights=true
 	bHasFlashlight=false
 
-   	AssociatedPerkClasses(0)= class'KFPerk_Survivalist'
-    AssociatedPerkClasses(1)= class'KFPerk_Sharpshooter'
+    AssociatedPerkClasses(0)= class'KFPerk_Sharpshooter'
 
 	WeaponFireWaveForm=ForceFeedbackWaveform'FX_ForceFeedback_ARCH.Gunfire.Heavy_Recoil_SingleShot'
 

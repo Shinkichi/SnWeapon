@@ -199,7 +199,7 @@ defaultproperties
 	IronSightPosition=(X=8.5,Y=0,Z=0)
 
 	// Ammo
-	MagazineCapacity[0]=75
+	MagazineCapacity[0]=50//75
 	SpareAmmoCapacity[0]=500
 	InitialSpareMags[0]=1
 	bCanBeReloaded=true
@@ -224,7 +224,7 @@ defaultproperties
     HippedRecoilModifier=1.5
 
     // Inventory / Grouping
-	InventorySize=9
+	InventorySize=8//9
 	GroupPriority=100
 	WeaponSelectTexture=Texture2D'wep_ui_stoner63a_tex.UI_WeaponSelect_Stoner'
 	

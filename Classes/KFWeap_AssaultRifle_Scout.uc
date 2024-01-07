@@ -574,7 +574,7 @@ defaultproperties
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_AssaultRifle'
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Scout_Rifle'
 	FireInterval(DEFAULT_FIREMODE)=+0.2//+0.12 // 500 RPM
-	InstantHitDamage(DEFAULT_FIREMODE)=45.0//35.0
+	InstantHitDamage(DEFAULT_FIREMODE)=40.0//45.0//35.0
 	Spread(DEFAULT_FIREMODE)=0.005 //0.0085
 	FireOffset=(X=30,Y=4.5,Z=-5)
 	SecondaryFireOffset=(X=20.f,Y=4.5,Z=-7.f)
@@ -585,11 +585,11 @@ defaultproperties
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_Scout_Shotgun'
 	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_Scout_Shotgun'
-	InstantHitDamage(ALTFIRE_FIREMODE)=210//225//25.0
+	InstantHitDamage(ALTFIRE_FIREMODE)=250//210//225//25.0
 	PenetrationPower(ALTFIRE_FIREMODE)=4.0//2.0
    	FireInterval(ALTFIRE_FIREMODE)=+0.77 //78 RPM //+1.2 //50 RPM
 	NumPellets(ALTFIRE_FIREMODE)=1//7
-	Spread(ALTFIRE_FIREMODE) = 0.034//0.017//
+	Spread(ALTFIRE_FIREMODE) = 0.017
     SecondaryAmmoTexture=Texture2D'ui_firemodes_tex.UI_FireModeSelect_ShotgunSingle'
 
 	// BASH_FIREMODE
@@ -608,7 +608,6 @@ defaultproperties
 	bHasFlashlight=false
 
 	AssociatedPerkClasses(0)=class'KFPerk_Sharpshooter'
-   	//AssociatedPerkClasses(1)=class'KFPerk_Support'
 	
 	WeaponUpgrades[1]=(Stats=((Stat=EWUS_Damage0, Scale=1.125f), (Stat=EWUS_Damage1, Scale=1.125f), (Stat=EWUS_Weight, Add=1)))
 	WeaponUpgrades[2]=(Stats=((Stat=EWUS_Damage0, Scale=1.25f), (Stat=EWUS_Damage1, Scale=1.25f), (Stat=EWUS_Weight, Add=2)))

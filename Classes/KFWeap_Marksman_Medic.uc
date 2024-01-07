@@ -60,7 +60,7 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=20//25//40 //30
-	SpareAmmoCapacity[0]=200//250//400 //390
+	SpareAmmoCapacity[0]=140//200//250//400 //390
 	InitialSpareMags[0]=2  //3
 	bCanBeReloaded=true
 	bReloadFromMagazine=true
@@ -91,7 +91,7 @@ defaultproperties
 	FireInterval(DEFAULT_FIREMODE)=0.22 //0.2
 	PenetrationPower(DEFAULT_FIREMODE)=2.0
 	Spread(DEFAULT_FIREMODE)=0.0085
-	InstantHitDamage(DEFAULT_FIREMODE)=60.0//56.0//35.0
+	InstantHitDamage(DEFAULT_FIREMODE)=70//60.0//56.0//35.0
 	FireOffset=(X=30,Y=4.5,Z=-5)
 
 	// ALTFIRE_FIREMODE

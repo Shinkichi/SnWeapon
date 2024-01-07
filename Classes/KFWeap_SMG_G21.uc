@@ -294,7 +294,7 @@ defaultproperties
 	FireSightedAnims[2]=Shoot_Iron3
 
 	// Inventory
-	InventorySize=8
+	InventorySize=7//8
 	GroupPriority=100
 	WeaponSelectTexture=Texture2D'WEP_UI_RiotShield_TEX.UI_WeaponSelect_RiotShield'
 
@@ -329,6 +329,25 @@ defaultproperties
 	BonesToLockOnEmpty=(RW_Bolt, RW_Bullets1, RW_Bullets2, RW_Barrel)
 
 	// Recoil
+	maxRecoilPitch=450
+	minRecoilPitch=400
+	maxRecoilYaw=150
+	minRecoilYaw=-150
+	RecoilRate=0.07
+	RecoilMaxYawLimit=500
+	RecoilMinYawLimit=65035
+	RecoilMaxPitchLimit=900
+	RecoilMinPitchLimit=65035
+	RecoilISMaxYawLimit=50
+	RecoilISMinYawLimit=65485
+	RecoilISMaxPitchLimit=500
+	RecoilISMinPitchLimit=65485
+	IronSightMeshFOVCompensationScale=1.35
+	WalkingRecoilModifier=1.1
+	JoggingRecoilModifier=1.2
+	
+	/*old
+	// Recoil
 	maxRecoilPitch=200//100
 	minRecoilPitch=150//75
 	maxRecoilYaw=170//85
@@ -345,6 +364,7 @@ defaultproperties
 	IronSightMeshFOVCompensationScale=1.65
 	WalkingRecoilModifier=1.1
 	JoggingRecoilModifier=1.2
+	*/
 
 	// Block FX
 	BlockSound=AkEvent'WW_WEP_Bullet_Impacts.Play_Block_MEL_Hammer'
@@ -378,6 +398,23 @@ defaultproperties
 	QuickWeaponDownRotation=(Pitch=-8192,Yaw=0,Roll=0)
 
 	// DEFAULT_FIREMODE
+	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletSingle'
+	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFiring
+	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
+	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_PistolColt1911'
+	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_G21'
+	FireInterval(DEFAULT_FIREMODE)=+0.175 // 343 RPM
+	Spread(DEFAULT_FIREMODE)=0.015
+	PenetrationPower(DEFAULT_FIREMODE)=1.0
+	InstantHitDamage(DEFAULT_FIREMODE)=60
+	FireOffset=(X=30,Y=6.5,Z=-4)
+
+	// ALT_FIREMODE
+	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
+	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_None
+
+	/*old
+	// DEFAULT_FIREMODE
 	FireModeIconPaths(DEFAULT_FIREMODE)=Texture2D'ui_firemodes_tex.UI_FireModeSelect_BulletBurst'
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponBurstFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_InstantHit
@@ -386,7 +423,7 @@ defaultproperties
 	FireInterval(DEFAULT_FIREMODE)=+.05455 // 1100 RPM
 	Spread(DEFAULT_FIREMODE)=0.06
 	PenetrationPower(DEFAULT_FIREMODE)=1.0
-	InstantHitDamage(DEFAULT_FIREMODE)=50
+	InstantHitDamage(DEFAULT_FIREMODE)=60//50
 	FireOffset=(X=30,Y=6.5,Z=-4)
 	BurstAmount=3
 
@@ -399,7 +436,8 @@ defaultproperties
 	FireInterval(ALTFIRE_FIREMODE)=+0.175 // 343 RPM
 	Spread(ALTFIRE_FIREMODE)=0.06
 	PenetrationPower(ALTFIRE_FIREMODE)=1.0
-	InstantHitDamage(ALTFIRE_FIREMODE)=50
+	InstantHitDamage(ALTFIRE_FIREMODE)=60//50
+	*/
 
 	// BASH_FIREMODE
 	InstantHitDamageTypes(BASH_FIREMODE)=class'KFDT_Bludgeon_G21Shield'

@@ -1,4 +1,5 @@
-class KFDT_Ballistic_TauCannon extends KFDT_Ballistic_Rifle
+//class KFDT_Ballistic_TauCannon extends KFDT_Ballistic_Rifle
+class KFDT_Ballistic_TauCannon extends KFDT_Microwave
 //class KFDT_Ballistic_TauCannon extends KFDT_Ballistic_Shotgun
 	abstract
 	hidedropdown;
@@ -17,9 +18,8 @@ defaultproperties
 
 	StumblePower=45//30//15
 
-	EMPPower=24//8
+	EMPPower=0//24//8
 
 	WeaponDef=class'KFWeapDef_TauCannon'
-	ModifierPerkList(0)=class'KFPerk_Survivalist'
-	ModifierPerkList(1)=class'KFPerk_Sharpshooter'
+	ModifierPerkList(0)=class'KFPerk_Sharpshooter'
 }

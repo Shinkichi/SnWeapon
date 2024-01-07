@@ -381,7 +381,7 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponBurstFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_Pellet_Chaingun'
-	InstantHitDamage(DEFAULT_FIREMODE)=25//20
+	InstantHitDamage(DEFAULT_FIREMODE)=20
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Chaingun'
 	FireInterval(DEFAULT_FIREMODE)=+0.06 // 1250 RPM//+0.07 // 850 RPM
 	PenetrationPower(DEFAULT_FIREMODE)=2.0
@@ -395,7 +395,7 @@ defaultproperties
 	FiringStatesArray(ALTFIRE_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(ALTFIRE_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(ALTFIRE_FIREMODE)=class'KFProj_Bullet_Pellet_Chaingun'
-	InstantHitDamage(ALTFIRE_FIREMODE)=25//20
+	InstantHitDamage(ALTFIRE_FIREMODE)=20
 	InstantHitDamageTypes(ALTFIRE_FIREMODE)=class'KFDT_Ballistic_Chaingun'
 	FireInterval(ALTFIRE_FIREMODE)=0.6f
 	PenetrationPower(ALTFIRE_FIREMODE)=2.0

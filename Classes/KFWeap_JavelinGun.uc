@@ -52,8 +52,7 @@ defaultproperties
 	InventorySize=7 //8
 	GroupPriority=75
 	WeaponSelectTexture=Texture2D'WEP_UI_Seal_Squeal_TEX.UI_WeaponSelect_SealSqueal'
-   	AssociatedPerkClasses(0)=class'KFPerk_Berserker'
-   	AssociatedPerkClasses(1)=class'KFPerk_Sharpshooter'
+   	AssociatedPerkClasses(0)=class'KFPerk_Sharpshooter'
 
     // FOV
     MeshFOV=75

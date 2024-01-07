@@ -29,8 +29,8 @@ defaultproperties
 
 	AmmoPricePerMag=30//25
 	SecondaryAmmoMagPrice=15 //13
-	SecondaryAmmoMagSize=40//6 // Num of bullets given (not magazines)
-
+	SecondaryAmmoMagSize=6 // Num of bullets given (not magazines)
+	
 	ImagePath="WEP_UI_Famas_TEX.UI_WeaponSelect_Famas"
 
 	EffectiveRange=67 // @TODO: ¿?¿?¿?

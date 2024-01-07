@@ -56,9 +56,9 @@ defaultproperties
 	FiringStatesArray(DEFAULT_FIREMODE)=WeaponSingleFiring
 	WeaponFireTypes(DEFAULT_FIREMODE)=EWFT_Projectile
 	WeaponProjectiles(DEFAULT_FIREMODE)=class'KFProj_Bullet_Pellet'
-	InstantHitDamage(DEFAULT_FIREMODE)=100//150.0
+	InstantHitDamage(DEFAULT_FIREMODE)=120//150.0
 	InstantHitDamageTypes(DEFAULT_FIREMODE)=class'KFDT_Ballistic_Carbine_Medic'
-	PenetrationPower(DEFAULT_FIREMODE)=4.0//2.0
+	PenetrationPower(DEFAULT_FIREMODE)=2.0
 	FireInterval(DEFAULT_FIREMODE)=0.2 //0.2  300 RPM
 	FireOffset=(X=30,Y=3,Z=-3)
 	Spread(DEFAULT_FIREMODE) = 0.0085//0.006//0.07
@@ -88,7 +88,7 @@ defaultproperties
 
 	// Ammo
 	MagazineCapacity[0]=10
-	SpareAmmoCapacity[0]=140//90
+	SpareAmmoCapacity[0]=90
 	InitialSpareMags[0]=3
 	bCanBeReloaded=true
 	bReloadFromMagazine=true

@@ -22,7 +22,6 @@ defaultproperties
 	StumblePower=340
 	GunHitPower=275
 
-	ModifierPerkList(0)=class'KFPerk_Berserker'
-   	ModifierPerkList(1)=class'KFPerk_Sharpshooter'
+   	ModifierPerkList(0)=class'KFPerk_Sharpshooter'
 	WeaponDef=class'KFWeapDef_JavelinGun'
 }
