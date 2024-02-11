@@ -1,6 +1,26 @@
 class KFWeapDef_Feline extends KFWeaponDefinition
 	abstract;
 
+static function string GetItemName()
+{
+    return "Feline X3 SMG";
+}
+
+static function string GetItemCategory()
+{
+	return "Feline X3 SMG";
+}
+
+static function string GetItemDescription()
+{
+    return "This is Feline X3 SMG!!";
+}
+
+static function string GetItemLocalization(string KeyName)
+{
+	return "Feline X3 SMG";
+}
+
 DefaultProperties
 {
 	WeaponClassPath="SnWeapon.KFWeap_AssaultRifle_Feline"
